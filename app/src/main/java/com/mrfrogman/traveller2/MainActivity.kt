@@ -11,6 +11,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import com.mrfrogman.traveller2.component.CreateComponent
 import com.mrfrogman.traveller2.component.MainScreen
 import com.mrfrogman.traveller2.database.DatabaseHelper
 import com.mrfrogman.traveller2.ui.theme.TravellerTheme
@@ -53,6 +54,7 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun Screen(){
     MainScreen()
+    CreateComponent()
 }
 
 @Preview(showBackground = true, widthDp = 340)
