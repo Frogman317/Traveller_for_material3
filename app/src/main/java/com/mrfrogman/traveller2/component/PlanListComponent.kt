@@ -3,6 +3,7 @@ package com.mrfrogman.traveller2.component
 import android.annotation.SuppressLint
 import android.database.sqlite.SQLiteDatabase
 import android.util.Log
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -32,19 +33,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import androidx.navigation.NavOptions
 import com.mrfrogman.traveller2.R
 import com.mrfrogman.traveller2.database.DatabaseHelper
-import com.mrfrogman.traveller2.ui.theme.TravellerTheme
 import java.time.LocalDateTime
 
 @SuppressLint("Range")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainScreen(navController: NavHostController) {
+fun PlanListComponent(navController: NavHostController) {
 
     val helper = DatabaseHelper(LocalContext.current)
     val dataList: MutableList<Map<String, Any>> = ArrayList()
@@ -82,13 +82,13 @@ fun MainScreen(navController: NavHostController) {
                 })
         },
         content = {
-            Card(it,dataList)
+            Card(it,dataList,navController)
         },
 
         floatingActionButton = {
             ExtendedFloatingActionButton(
                 icon = { Icon(Icons.Filled.Add,"Add Button") },
-                text = { Text(stringResource(R.string.Create_a_new_plan)) },
+                text = { Text(stringResource(R.string.Create_page_title)) },
                 onClick = {
                     navController.navigate("create")
                     Log.d("test", "MainScreen: clicked add plan button")
@@ -98,7 +98,11 @@ fun MainScreen(navController: NavHostController) {
 }
 
 @Composable
-private fun Card(paddingValues: PaddingValues, dataList: MutableList<Map<String, Any>>) {
+private fun Card(
+    paddingValues: PaddingValues,
+    dataList: MutableList<Map<String, Any>>,
+    navController: NavHostController
+) {
     LazyColumn(
         Modifier.padding(paddingValues),
         verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -109,6 +113,10 @@ private fun Card(paddingValues: PaddingValues, dataList: MutableList<Map<String,
                     containerColor = MaterialTheme.colorScheme.primary
                 ),
                 modifier = Modifier.padding(vertical = 4.dp, horizontal = 8.dp)
+                    .clickable {
+                        val data = dataList[it]
+                        navController.navigate("detail/$data")
+                    }
             ) {
                 CardContent(dataList[it])
             }
