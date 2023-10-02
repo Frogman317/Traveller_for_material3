@@ -63,7 +63,6 @@ fun CreateComponent(navController: NavHostController){
     var memberInput by rememberSaveable { mutableStateOf("") }
     var memberList by rememberSaveable { mutableStateOf(emptyList<String>()) }
 
-
     var titleInputErrorMessage by remember { mutableStateOf("") }
     var memberInputErrorMessage by remember { mutableStateOf("") }
     val sameNameError = stringResource(id = R.string.same_name_error)
@@ -71,15 +70,13 @@ fun CreateComponent(navController: NavHostController){
     val emptyMemberError = stringResource(id = R.string.empty_member_error)
     val emptyTitleError = stringResource(id = R.string.empty_title_error)
 
-    val helper = DatabaseHelper(LocalContext.current)
-    val db: SQLiteDatabase = helper.writableDatabase
-
+    val context = LocalContext.current
 
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
                 title = { Text(
-                    text = stringResource(id = R.string.Create_a_new_plan),
+                    text = stringResource(id = R.string.Create_page_title),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 ) },
@@ -94,6 +91,8 @@ fun CreateComponent(navController: NavHostController){
                                     put("amount",0)
                                     put("date", LocalDateTime.now().toString())
                                 }
+                                val helper = DatabaseHelper(context)
+                                val db: SQLiteDatabase = helper.writableDatabase
                                 val planId = db.insert("plans", null, values)
                                 for (value in memberList) {
                                     val arrayValuesContent = ContentValues().apply {
