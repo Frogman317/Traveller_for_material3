@@ -35,6 +35,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
 import com.mrfrogman.traveller2.R
 import com.mrfrogman.traveller2.database.DatabaseHelper
 import com.mrfrogman.traveller2.ui.theme.TravellerTheme
@@ -43,7 +44,7 @@ import java.time.LocalDateTime
 @SuppressLint("Range")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainScreen() {
+fun MainScreen(navController: NavHostController) {
 
     val helper = DatabaseHelper(LocalContext.current)
     val dataList: MutableList<Map<String, Any>> = ArrayList()
@@ -89,6 +90,7 @@ fun MainScreen() {
                 icon = { Icon(Icons.Filled.Add,"Add Button") },
                 text = { Text(stringResource(R.string.Create_a_new_plan)) },
                 onClick = {
+                    navController.navigate("create")
                     Log.d("test", "MainScreen: clicked add plan button")
                 })
         }
@@ -150,13 +152,5 @@ private fun CardContent(data: Map<String, Any>) {
                 text = dateStr,
             )
         }
-    }
-}
-
-@Preview(showBackground = true, widthDp = 340)
-@Composable
-fun MainPreview() {
-    TravellerTheme {
-        MainScreen()
     }
 }

@@ -48,17 +48,16 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
 import com.mrfrogman.traveller2.R
 import com.mrfrogman.traveller2.database.DatabaseHelper
-import com.mrfrogman.traveller2.ui.theme.TravellerTheme
 import java.time.LocalDateTime
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CreateComponent(){
+fun CreateComponent(navController: NavHostController){
 
     var titleInput by rememberSaveable { mutableStateOf("") }
     var memberInput by rememberSaveable { mutableStateOf("") }
@@ -103,6 +102,7 @@ fun CreateComponent(){
                                     }
                                     db.insert("member", null, arrayValuesContent)
                                 }
+                                navController.navigate("main")
                             }else{
                                 memberInputErrorMessage = emptyMemberError
                             }
@@ -253,13 +253,4 @@ fun CreateComponent(){
             }
         }
     )
-}
-
-
-@Preview(showBackground = true, widthDp = 340)
-@Composable
-fun Preview() {
-    TravellerTheme {
-        CreateComponent()
-    }
 }

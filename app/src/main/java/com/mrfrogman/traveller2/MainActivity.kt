@@ -9,12 +9,12 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.mrfrogman.traveller2.component.MainScreen
 import com.mrfrogman.traveller2.component.CreateComponent
 import com.mrfrogman.traveller2.ui.theme.TravellerTheme
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
 
 
 
@@ -41,10 +41,10 @@ fun AppScreen() {
         startDestination = "main"
     ) {
         composable(route = "main") {
-            MainScreen()
+            MainScreen(navController)
         }
         composable(route = "create") {
-            CreateComponent()
+            CreateComponent(navController)
         }
     }
 }
