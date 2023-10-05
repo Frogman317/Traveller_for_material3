@@ -36,7 +36,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
-import androidx.navigation.NavOptions
 import com.mrfrogman.traveller2.R
 import com.mrfrogman.traveller2.database.DatabaseHelper
 import java.time.LocalDateTime
@@ -74,10 +73,10 @@ fun PlanListComponent(navController: NavHostController) {
                     overflow = TextOverflow.Ellipsis
                 ) },
                 actions = {
-                    IconButton(onClick = { /* doSomething() */ }) { Icon(
-                        imageVector = Icons.Filled.Settings,
-                        contentDescription = "Settings Button"
-                    )
+                    IconButton(onClick = {
+                        /* doSomething() */
+                    }) {
+                        Icon(imageVector = Icons.Filled.Settings, contentDescription = "Settings Button")
                     }
                 })
         },
@@ -114,8 +113,9 @@ private fun Card(
                 ),
                 modifier = Modifier.padding(vertical = 4.dp, horizontal = 8.dp)
                     .clickable {
-                        val data = dataList[it]
-                        navController.navigate("detail/$data")
+                        val planID = dataList[it]["_id"]
+                        val title = dataList[it]["title"]
+                        navController.navigate("detail/$planID/$title")
                     }
             ) {
                 CardContent(dataList[it])

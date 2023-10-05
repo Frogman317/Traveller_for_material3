@@ -9,9 +9,11 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.mrfrogman.traveller2.component.PlanListComponent
 import com.mrfrogman.traveller2.component.CreateComponent
 import com.mrfrogman.traveller2.component.DetailComponent
@@ -47,8 +49,16 @@ fun AppScreen() {
         composable(route = "create") {
             CreateComponent(navController)
         }
-        composable(route = "detail") {
-            DetailComponent(navController)
+        composable(
+            route = "detail/{planID}/{title}",
+            arguments = listOf(
+                navArgument("planID") { type = NavType.IntType },
+                navArgument("title") { type = NavType.StringType }
+            )
+        ){arguments ->
+            val planID = arguments.arguments?.getInt("planID") ?: ""
+            val title = arguments.arguments?.getString("title") ?: ""
+            DetailComponent(planID,title)
         }
     }
 }
