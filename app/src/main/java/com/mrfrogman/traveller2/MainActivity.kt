@@ -9,14 +9,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.navigation.NavType
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
-import androidx.navigation.navArgument
-import com.mrfrogman.traveller2.component.PlanListComponent
-import com.mrfrogman.traveller2.component.CreateComponent
-import com.mrfrogman.traveller2.component.DetailComponent
+import com.mrfrogman.traveller2.navigation.MainNavigation
 import com.mrfrogman.traveller2.ui.theme.TravellerTheme
 
 
@@ -30,36 +23,14 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    AppScreen()
+                    MainNavigation()
                 }
             }
         }
     }
-}
-@Composable
-fun AppScreen() {
-    val navController = rememberNavController()
-    NavHost(
-        navController = navController,
-        startDestination = "main"
-    ) {
-        composable(route = "main") {
-            PlanListComponent(navController)
-        }
-        composable(route = "create") {
-            CreateComponent(navController)
-        }
-        composable(
-            route = "detail/{planID}/{title}",
-            arguments = listOf(
-                navArgument("planID") { type = NavType.IntType },
-                navArgument("title") { type = NavType.StringType }
-            )
-        ){arguments ->
-            val planID = arguments.arguments?.getInt("planID") ?: ""
-            val title = arguments.arguments?.getString("title") ?: ""
-            DetailComponent(planID,title)
-        }
+
+    override fun onResume() {
+        super.onResume()
     }
 }
 
@@ -67,6 +38,6 @@ fun AppScreen() {
 @Composable
 fun MainPreview() {
     TravellerTheme {
-        AppScreen()
+        MainNavigation()
     }
 }
