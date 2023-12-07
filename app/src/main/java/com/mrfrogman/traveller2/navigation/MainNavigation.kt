@@ -9,6 +9,7 @@ import androidx.navigation.compose.rememberNavController
 import com.mrfrogman.traveller2.views.HomeView
 import com.mrfrogman.traveller2.views.TitleView
 import com.mrfrogman.traveller2.views.account.LoginView
+import com.mrfrogman.traveller2.views.account.RegisterView
 
 @Composable
 fun MainNavigation(
@@ -32,7 +33,7 @@ fun MainNavigation(
             )
         }
         composable(route = "register") {
-            TitleView(
+            RegisterView(
                 navController = navController,
             )
         }

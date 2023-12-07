@@ -46,11 +46,12 @@ fun TitleView(
 
 @Composable
 fun TitleButton(
+    modifier: Modifier = Modifier,
     text: String,
     onClick: () -> Unit,
 ) {
     Button(
-        modifier = Modifier
+        modifier = modifier
             .padding(top = 20.dp)
             .fillMaxWidth(0.75f),
         onClick = onClick

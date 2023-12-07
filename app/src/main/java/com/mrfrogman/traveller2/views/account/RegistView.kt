@@ -25,17 +25,21 @@ import com.mrfrogman.traveller2.views.compose.TicketTextField
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LoginView(
+fun RegisterView(
     navController: NavHostController,
 ) {
-    var email by remember { mutableStateOf("") }
-    var pass by remember { mutableStateOf("") }
+    var user   by remember { mutableStateOf("") }
+    var email  by remember { mutableStateOf("") }
+    var pass   by remember { mutableStateOf("") }
+    var repass by remember { mutableStateOf("") }
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
-                title = { Text(text = "ログイン") },
+                title = { Text(text = "新規登録") },
                 navigationIcon = {
-                    IconButton(onClick = { navController.navigateUp() }) {
+                    IconButton(onClick = {
+                        navController.navigateUp()
+                    }) {
                         Icon(
                             imageVector = Icons.Filled.ArrowBackIosNew,
                             contentDescription = "Back screen button"
@@ -52,6 +56,13 @@ fun LoginView(
             TicketTextField(
                 modifier = Modifier.padding(top = 20.dp),
                 contentDescription = "",
+                label = "ユーザー名",
+                value = user,
+            ){
+                user = it
+            }
+            TicketTextField(
+                contentDescription = "",
                 label = "メールアドレス",
                 value = email,
             ){
@@ -64,11 +75,18 @@ fun LoginView(
             ){
                 pass = it
             }
+            TicketTextField(
+                contentDescription = "",
+                label = "パスワード再入力",
+                value = repass,
+            ){
+                repass = it
+            }
 
             Spacer(modifier = Modifier.weight(1f))
 
             TitleButton(
-                text = "ログイン",
+                text = "新規登録",
                 modifier = Modifier.padding(bottom = 32.dp)
             ){
                 navController.navigate("home")
