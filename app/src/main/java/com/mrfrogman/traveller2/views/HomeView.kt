@@ -10,14 +10,17 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -39,13 +42,14 @@ import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -59,7 +63,8 @@ import com.mrfrogman.traveller2.R
 @Composable
 fun HomeView(navController: NavHostController) {
     val listState = rememberLazyListState()
-    var segmentIndex by remember { mutableStateOf(0) }
+    var segmentIndex by remember { mutableIntStateOf(0) }
+    val themeGray = if (isSystemInDarkTheme()) Color.LightGray else Color.DarkGray
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
@@ -76,6 +81,9 @@ fun HomeView(navController: NavHostController) {
         },
         floatingActionButton = {
             ExtendedFloatingActionButton(
+                modifier = Modifier.offset(
+
+                ),
                 onClick = {
                     Log.d("TAG", "HomeView: ")
                 },
@@ -88,11 +96,13 @@ fun HomeView(navController: NavHostController) {
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(innerPadding),
+            contentPadding = PaddingValues(vertical = 8.dp),
             state = listState,
         ) {
             item {
-                Spacer(modifier = Modifier.padding(8.dp))
-                MainAmountBoard()
+                MainAmountBoard(themeGray)
+            }
+            item {
                 Row(
                     modifier = Modifier
                         .padding(top = 20.dp)
@@ -100,6 +110,7 @@ fun HomeView(navController: NavHostController) {
                     horizontalArrangement = Arrangement.Center
                 ) {
                     FilledTonalButton(
+                        modifier = Modifier.width(150.dp),
                         onClick = {
 
                         }) {
@@ -107,12 +118,15 @@ fun HomeView(navController: NavHostController) {
                     }
                     Spacer(modifier = Modifier.width(40.dp))
                     Button(
+                        modifier = Modifier.width(150.dp),
                         onClick = {
 
                         }) {
                         Text(text = "メンバーの追加")
                     }
                 }
+            }
+            item {
                 val options = listOf("すべての表示", "自分の表示")
                 SingleChoiceSegmentedButtonRow(
                     modifier = Modifier
@@ -134,18 +148,23 @@ fun HomeView(navController: NavHostController) {
                     }
                 }
             }
+            val dataList = listOf("1","2","3","4","5","1","2","3","4","5","1","2","3","4","5","1","2","3","4","5","1","2","3","4","5","1","2","3","4","5","1","2","3","4","5")
+            val listIcon = Icons.Filled.ChevronRight
             items(
-                count = 20,
-                key = { it }
-            ) { index ->
-                ListContent(index = index)
+                dataList
+            ) { data ->
+                ListContent(
+                    data = data,
+                    themeGray = themeGray,
+                    listIcon = listIcon
+                )
             }
         }
     }
 }
 
 @Composable
-fun MainAmountBoard() {
+fun MainAmountBoard(themeGray: Color) {
     Box(
         modifier = Modifier.fillMaxWidth(),
         contentAlignment = Alignment.Center,
@@ -158,7 +177,7 @@ fun MainAmountBoard() {
             contentScale = ContentScale.FillBounds,
             painter = painterResource(id = R.drawable.ticketamountboard),
             contentDescription = "content shadow",
-            colorFilter = ColorFilter.tint(if (isSystemInDarkTheme()) Color.DarkGray else Color.LightGray)
+            colorFilter = ColorFilter.tint(themeGray)
         )
         Row(
             modifier = Modifier.width(360.dp)
@@ -236,23 +255,28 @@ fun MainAmountBoard() {
 }
 
 @Composable
-fun ListContent(index: Int) {
+fun ListContent(
+    data: String,
+    themeGray: Color,
+    listIcon: ImageVector
+) {
     Text(
-        modifier = Modifier.padding(horizontal = 20.dp),
-        color = if (isSystemInDarkTheme()) Color.LightGray else Color.DarkGray,
+        modifier = Modifier.padding(start = 16.dp),
+        color = themeGray,
         text = "12/9"
     )
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
             .fillMaxWidth()
+            .height(60.dp)
             .clickable {
                 //TODO
             }
-            .padding(horizontal = 20.dp, vertical = 12.dp)
     ) {
         Text(
-            text = "Item $index",
+            modifier = Modifier.padding(start = 16.dp),
+            text = "Item $data",
             fontWeight = FontWeight.SemiBold,
         )
         Spacer(modifier = Modifier.weight(1f))
@@ -261,8 +285,10 @@ fun ListContent(index: Int) {
             fontWeight = FontWeight.Medium,
         )
         Icon(
-            imageVector = Icons.Filled.ChevronRight,
-            contentDescription = "Navigate Button for detail of list"
+            modifier = Modifier.padding(end = 12.dp),
+            imageVector = listIcon,
+            contentDescription = "Navigate Button for detail of list",
+            tint = themeGray
         )
     }
 }

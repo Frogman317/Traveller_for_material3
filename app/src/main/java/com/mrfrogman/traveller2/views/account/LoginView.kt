@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBackIosNew
+import androidx.compose.material3.Button
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -67,11 +68,13 @@ fun LoginView(
 
             Spacer(modifier = Modifier.weight(1f))
 
-            TitleButton(
-                text = "ログイン",
-                modifier = Modifier.padding(bottom = 32.dp)
+            Button(
+                modifier = Modifier.padding(bottom = 32.dp),
+                onClick = {
+                    navController.navigate("home")
+                }
             ){
-                navController.navigate("home")
+                Text(text = "ログイン",)
             }
         }
     }
