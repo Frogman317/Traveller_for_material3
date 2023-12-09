@@ -1,15 +1,3 @@
 <resources>
     <string name="app_name">Traveller</string>
-
-    <string name="Create_page_title">Create a new plan</string>
-
-    <string name="plan_title">Plan Title</string>
-    <string name="member_name">Member name</string>
-    <string name="edit_name">Edit name</string>
-    <string name="delete">Delete</string>
-
-    <string name="same_name_error">Cannot add people with the same name</string>
-    <string name="empty_member_error">Please add member</string>
-    <string name="empty_title_error">Please enter a title</string>
-    <string name="empty_name_error">Please enter member name</string>
 </resources>
