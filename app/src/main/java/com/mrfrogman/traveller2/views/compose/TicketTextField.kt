@@ -6,6 +6,10 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Cancel
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -70,6 +74,16 @@ fun TicketTextField(
                 text = supportingText,
                 color = colorScheme.error,
             ) },
+            trailingIcon = {
+                IconButton(onClick = {
+                    onValueChange("")
+                }) {
+                    Icon(
+                        imageVector = Icons.Filled.Cancel,
+                        contentDescription = "Type clear button"
+                    )
+                }
+            }
         )
     }
 }
