@@ -11,7 +11,6 @@ import com.mrfrogman.traveller2.views.StarterView
 import com.mrfrogman.traveller2.views.TitleView
 import com.mrfrogman.traveller2.views.account.LoginView
 import com.mrfrogman.traveller2.views.account.RegisterView
-import com.mrfrogman.traveller2.views.plan.CameraView
 import com.mrfrogman.traveller2.views.plan.CreatePlanView
 import com.mrfrogman.traveller2.views.plan.JoinPlanView
 
@@ -43,11 +42,6 @@ fun MainNavigation(
         }
         composable(route = "plan/join") {
             JoinPlanView(
-                navController = navController,
-            )
-        }
-        composable(route = "plan/camera") {
-            CameraView(
                 navController = navController,
             )
         }

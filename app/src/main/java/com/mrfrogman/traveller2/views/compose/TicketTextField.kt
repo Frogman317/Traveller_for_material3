@@ -47,7 +47,7 @@ fun TicketTextField(
             contentDescription = "content shadow",
             contentScale = ContentScale.FillWidth,
             colorFilter = ColorFilter.tint(
-                color = if (isSystemInDarkTheme()) Color.DarkGray else Color.LightGray
+                color = if (isSystemInDarkTheme()) Color.LightGray else Color.Gray
             )
         )
         Image(

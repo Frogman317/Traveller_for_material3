@@ -63,15 +63,6 @@ dependencies {
     implementation("androidx.navigation:navigation-compose:2.7.5")
     implementation("androidx.compose.material:material-icons-extended:1.5.4")
 
-    //Camera関係
-    val camerax = "1.4.0-alpha02"
-    implementation ("androidx.camera:camera-core:${camerax}")
-    implementation ("androidx.camera:camera-camera2:${camerax}")
-    implementation ("androidx.camera:camera-lifecycle:${camerax}")
-    implementation ("androidx.camera:camera-view:${camerax}")
-    implementation ("androidx.camera:camera-mlkit-vision:${camerax}")
-    implementation ("com.google.android.gms:play-services-mlkit-barcode-scanning:18.3.0")
-    implementation ("com.google.zxing:core:3.4.1")
     //Permission管理
     implementation ("com.google.accompanist:accompanist-permissions:0.23.1")
 

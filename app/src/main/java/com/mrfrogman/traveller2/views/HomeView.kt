@@ -52,7 +52,7 @@ import com.mrfrogman.traveller2.views.compose.AmountBoard
 fun HomeView(navController: NavHostController) {
     val listState = rememberLazyListState()
     var segmentIndex by remember { mutableIntStateOf(0) }
-    val themeGray = if (isSystemInDarkTheme()) Color.LightGray else Color.DarkGray
+    val themeGray = if (isSystemInDarkTheme()) Color.LightGray else Color.Gray
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
@@ -89,8 +89,6 @@ fun HomeView(navController: NavHostController) {
         ) {
             item {
                 AmountBoard(themeGray)
-            }
-            item {
                 Row(
                     modifier = Modifier
                         .padding(top = 20.dp)
@@ -113,8 +111,6 @@ fun HomeView(navController: NavHostController) {
                         Text(text = "メンバーの追加")
                     }
                 }
-            }
-            item {
                 val options = listOf("すべての表示", "自分の表示")
                 SingleChoiceSegmentedButtonRow(
                     modifier = Modifier
@@ -135,17 +131,27 @@ fun HomeView(navController: NavHostController) {
                         }
                     }
                 }
-            }
-            val dataList = listOf("1","2","3","4","5","1","2","3","4","5","1","2","3","4","5","1","2","3","4","5","1","2","3","4","5","1","2","3","4","5","1","2","3","4","5")
-            val listIcon = Icons.Filled.ChevronRight
-            items(
-                dataList
-            ) { data ->
-                ListContent(
-                    data = data,
-                    themeGray = themeGray,
-                    listIcon = listIcon
-                )
+                ListContent(data = "test datum")
+                ListContent(data = "test datum")
+                ListContent(data = "test datum")
+                ListContent(data = "test datum")
+                ListContent(data = "test datum")
+                ListContent(data = "test datum")
+                ListContent(data = "test datum")
+                ListContent(data = "test datum")
+                ListContent(data = "test datum")
+                ListContent(data = "test datum")
+                ListContent(data = "test datum")
+                ListContent(data = "test datum")
+                ListContent(data = "test datum")
+                ListContent(data = "test datum")
+                ListContent(data = "test datum")
+                ListContent(data = "test datum")
+                ListContent(data = "test datum")
+                ListContent(data = "test datum")
+                ListContent(data = "test datum")
+                ListContent(data = "test datum")
+                ListContent(data = "test datum")
             }
         }
     }
@@ -154,10 +160,9 @@ fun HomeView(navController: NavHostController) {
 
 @Composable
 fun ListContent(
-    data: String,
-    themeGray: Color,
-    listIcon: ImageVector
+    data: String
 ) {
+    val themeGray = if (isSystemInDarkTheme()) Color.LightGray else Color.Gray
     Text(
         modifier = Modifier.padding(start = 16.dp),
         color = themeGray,
@@ -184,7 +189,7 @@ fun ListContent(
         )
         Icon(
             modifier = Modifier.padding(end = 12.dp),
-            imageVector = listIcon,
+            imageVector = Icons.Filled.ChevronRight,
             contentDescription = "Navigate Button for detail of list",
             tint = themeGray
         )

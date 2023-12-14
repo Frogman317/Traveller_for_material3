@@ -3,6 +3,7 @@ package com.mrfrogman.traveller2.views.plan
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material3.Button
@@ -60,18 +61,9 @@ fun JoinPlanView(
             }
 
             Button(
-                modifier = Modifier.padding(top = 32.dp),
-                onClick = {
-                    navController.navigate("plan/camera")
-                }
-            ){
-                Text(text = "カメラで読み取る",)
-            }
-
-            Spacer(modifier = Modifier.weight(1f))
-
-            Button(
-                modifier = Modifier.padding(bottom = 32.dp),
+                modifier = Modifier
+                    .width(150.dp)
+                    .padding(top = 32.dp),
                 onClick = {
                     navController.navigate("home")
                 }
