@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -34,6 +33,7 @@ import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
@@ -41,7 +41,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
@@ -89,6 +88,8 @@ fun HomeView(navController: NavHostController) {
         ) {
             item {
                 AmountBoard(themeGray)
+            }
+            item {
                 Row(
                     modifier = Modifier
                         .padding(top = 20.dp)
@@ -111,6 +112,8 @@ fun HomeView(navController: NavHostController) {
                         Text(text = "メンバーの追加")
                     }
                 }
+            }
+            item {
                 val options = listOf("すべての表示", "自分の表示")
                 SingleChoiceSegmentedButtonRow(
                     modifier = Modifier
@@ -131,33 +134,20 @@ fun HomeView(navController: NavHostController) {
                         }
                     }
                 }
-                ListContent(data = "test datum")
-                ListContent(data = "test datum")
-                ListContent(data = "test datum")
-                ListContent(data = "test datum")
-                ListContent(data = "test datum")
-                ListContent(data = "test datum")
-                ListContent(data = "test datum")
-                ListContent(data = "test datum")
-                ListContent(data = "test datum")
-                ListContent(data = "test datum")
-                ListContent(data = "test datum")
-                ListContent(data = "test datum")
-                ListContent(data = "test datum")
-                ListContent(data = "test datum")
-                ListContent(data = "test datum")
-                ListContent(data = "test datum")
-                ListContent(data = "test datum")
-                ListContent(data = "test datum")
-                ListContent(data = "test datum")
-                ListContent(data = "test datum")
+            }
+//            for (i in 0..14){
+//                item {
+//                    ListContent(data = "test datum")
+//                }
+//            }
+            items(15){
                 ListContent(data = "test datum")
             }
         }
     }
 }
 
-
+@Stable
 @Composable
 fun ListContent(
     data: String

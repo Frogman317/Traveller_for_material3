@@ -76,29 +76,28 @@ fun CreatePlanView(
             horizontalAlignment = Alignment.CenterHorizontally
         ){
             item {
-                Column(
-                    modifier = Modifier.height(240.dp)
+                TicketTextField(
+                    modifier = Modifier.padding(top = 20.dp),
+                    contentDescription = "",
+                    label = "タイトル",
+                    value = planTitle,
                 ) {
-                    TicketTextField(
-                        modifier = Modifier.padding(top = 20.dp),
-                        contentDescription = "",
-                        label = "タイトル",
-                        value = planTitle,
-                    ){
-                        planTitle = it
-                    }
-                    TicketTextField(
-                        contentDescription = "",
-                        label = "メンバーの追加",
-                        value = addMemberName,
-                    ){
-                        addMemberName = it
-                    }
+                    planTitle = it
                 }
+            }
+            item {
+                TicketTextField(
+                    contentDescription = "",
+                    label = "メンバーの追加",
+                    value = addMemberName,
+                ){
+                    addMemberName = it
+                }
+            }
+            item {
                 Row(
                     modifier = Modifier
                         .padding(top = 10.dp, bottom = 20.dp)
-                        .height(40.dp)
                         .fillMaxWidth(),
                     horizontalArrangement = Arrangement.Center
                 ) {
@@ -118,7 +117,9 @@ fun CreatePlanView(
                         Text(text = "メンバーの追加")
                     }
                 }
+            }
                 for (i in 0..15){
+                    item {
                     AddMemberList("test")
                 }
             }
