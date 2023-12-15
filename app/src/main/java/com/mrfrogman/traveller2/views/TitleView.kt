@@ -37,7 +37,7 @@ fun TitleView(
             navController.navigate("register")
         }
         TitleButton(text = "ゲストログイン"){
-            navController.navigate("home")
+            navController.navigate("starter")
         }
 
         //TODO debug buttons

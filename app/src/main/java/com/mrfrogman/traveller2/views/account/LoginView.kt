@@ -75,7 +75,7 @@ fun LoginView(
             Button(
                 modifier = Modifier.padding(bottom = 32.dp),
                 onClick = {
-                    navController.navigate("home")
+                    navController.navigate("starter")
                 }
             ){
                 Text(text = "ログイン",)

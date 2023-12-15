@@ -89,7 +89,7 @@ fun RegisterView(
                 text = "新規登録",
                 modifier = Modifier.padding(bottom = 32.dp)
             ){
-                navController.navigate("home")
+                navController.navigate("starter")
             }
         }
     }

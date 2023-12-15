@@ -75,7 +75,6 @@ fun HomeView(navController: NavHostController) {
             )
         },
         floatingActionButton = {
-            val TAG = "test"
             if (state.value >= 50 && fabOfset < 80) {
                 fabOfset += 3
             }else if(fabOfset > 0){
@@ -89,7 +88,7 @@ fun HomeView(navController: NavHostController) {
                     Log.d("TAG", "HomeView: ")
                 },
                 icon = { Icon(Icons.Filled.Add, "Localized Description") },
-                text = { Text(text = "") },
+                text = { Text(text = "支払いの追加") },
             )
         }
     ) { innerPadding ->
