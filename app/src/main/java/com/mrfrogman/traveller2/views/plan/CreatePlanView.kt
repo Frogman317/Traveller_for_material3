@@ -1,19 +1,17 @@
 package com.mrfrogman.traveller2.views.plan
 
-import android.util.Log
+import androidx.compose.foundation.gestures.rememberScrollableState
+import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material3.Button
@@ -69,59 +67,52 @@ fun CreatePlanView(
             )
         },
     ) { innerPadding ->
-        LazyColumn(
+        Column(
             modifier = Modifier
                 .padding(innerPadding)
-                .fillMaxWidth(),
+                .fillMaxWidth()
+                .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally
         ){
-            item {
-                TicketTextField(
-                    modifier = Modifier.padding(top = 20.dp),
-                    contentDescription = "",
-                    label = "タイトル",
-                    value = planTitle,
-                ) {
-                    planTitle = it
-                }
+            TicketTextField(
+                modifier = Modifier.padding(top = 20.dp),
+                contentDescription = "",
+                label = "タイトル",
+                value = planTitle,
+            ) {
+                planTitle = it
             }
-            item {
-                TicketTextField(
-                    contentDescription = "",
-                    label = "メンバーの追加",
-                    value = addMemberName,
-                ){
-                    addMemberName = it
-                }
+            TicketTextField(
+                contentDescription = "",
+                label = "メンバーの追加",
+                value = addMemberName,
+            ){
+                addMemberName = it
             }
-            item {
-                Row(
-                    modifier = Modifier
-                        .padding(top = 10.dp, bottom = 20.dp)
-                        .fillMaxWidth(),
-                    horizontalArrangement = Arrangement.Center
-                ) {
-                    FilledTonalButton(
-                        modifier = Modifier.width(150.dp),
-                        onClick = {
+            Row(
+                modifier = Modifier
+                    .padding(top = 10.dp, bottom = 20.dp)
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center
+            ) {
+                FilledTonalButton(
+                    modifier = Modifier.width(150.dp),
+                    onClick = {
 
-                        }) {
-                        Text(text = "リストから追加")
-                    }
-                    Spacer(modifier = Modifier.width(40.dp))
-                    Button(
-                        modifier = Modifier.width(150.dp),
-                        onClick = {
+                    }) {
+                    Text(text = "リストから追加")
+                }
+                Spacer(modifier = Modifier.width(40.dp))
+                Button(
+                    modifier = Modifier.width(150.dp),
+                    onClick = {
 
-                        }) {
-                        Text(text = "メンバーの追加")
-                    }
+                    }) {
+                    Text(text = "メンバーの追加")
                 }
             }
-                for (i in 0..15){
-                    item {
-                    AddMemberList("test")
-                }
+            for (i in 0..8){
+                AddMemberList("test")
             }
         }
     }

@@ -6,6 +6,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.mrfrogman.traveller2.Test
 import com.mrfrogman.traveller2.views.HomeView
 import com.mrfrogman.traveller2.views.StarterView
 import com.mrfrogman.traveller2.views.TitleView
@@ -25,6 +26,9 @@ fun MainNavigation(
         navController = navController,
         startDestination = startDestination,
     ) {
+        composable(route = "test") {
+            Test()
+        }
         composable(route = "title") {
             TitleView(
                 navController = navController,

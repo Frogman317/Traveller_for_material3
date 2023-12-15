@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -15,6 +16,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBackIosNew
@@ -36,6 +39,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -45,13 +49,17 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.mrfrogman.traveller2.views.compose.AmountBoard
+import kotlin.math.log
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeView(navController: NavHostController) {
-    val listState = rememberLazyListState()
+    val state = rememberScrollState()
     var segmentIndex by remember { mutableIntStateOf(0) }
     val themeGray = if (isSystemInDarkTheme()) Color.LightGray else Color.Gray
+    var fabOfset by remember {
+        mutableStateOf(0)
+    }
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
@@ -67,81 +75,75 @@ fun HomeView(navController: NavHostController) {
             )
         },
         floatingActionButton = {
+            val TAG = "test"
+            if (state.value != 0) {
+                fabOfset += 3
+            }else if(state.value > 50 && fabOfset > 0){
+                fabOfset -= 3
+            }
             ExtendedFloatingActionButton(
                 modifier = Modifier.offset(
-
+                    y = fabOfset.dp
                 ),
                 onClick = {
                     Log.d("TAG", "HomeView: ")
                 },
                 icon = { Icon(Icons.Filled.Add, "Localized Description") },
-                text = { Text(text = "Extended FAB") },
+                text = { Text(text = "") },
             )
         }
     ) { innerPadding ->
-        LazyColumn(
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(innerPadding),
-            contentPadding = PaddingValues(vertical = 8.dp),
-            state = listState,
+                .padding(innerPadding)
+                .verticalScroll(state),
         ) {
-            item {
-                AmountBoard(themeGray)
+            AmountBoard(themeGray)
+            Row(
+                modifier = Modifier
+                    .padding(top = 20.dp)
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center
+            ) {
+                FilledTonalButton(
+                    modifier = Modifier.width(150.dp),
+                    onClick = {
+
+                    }) {
+                    Text(text = "詳細")
+                }
+                Spacer(modifier = Modifier.width(40.dp))
+                Button(
+                    modifier = Modifier.width(150.dp),
+                    onClick = {
+
+                    }) {
+                    Text(text = "メンバーの追加")
+                }
             }
-            item {
-                Row(
-                    modifier = Modifier
-                        .padding(top = 20.dp)
-                        .fillMaxWidth(),
-                    horizontalArrangement = Arrangement.Center
-                ) {
-                    FilledTonalButton(
-                        modifier = Modifier.width(150.dp),
-                        onClick = {
-
-                        }) {
-                        Text(text = "詳細")
-                    }
-                    Spacer(modifier = Modifier.width(40.dp))
-                    Button(
-                        modifier = Modifier.width(150.dp),
-                        onClick = {
-
-                        }) {
-                        Text(text = "メンバーの追加")
+            val options = listOf("すべての表示", "自分の表示")
+            SingleChoiceSegmentedButtonRow(
+                modifier = Modifier
+                    .background(colorScheme.background)
+                    .padding(20.dp)
+                    .fillMaxWidth(),
+            ) {
+                options.forEachIndexed { index, label ->
+                    SegmentedButton(
+                        shape = SegmentedButtonDefaults.itemShape(
+                            index = index,
+                            count = options.size
+                        ),
+                        onClick = { segmentIndex = index },
+                        selected = index == segmentIndex
+                    ) {
+                        Text(label)
                     }
                 }
             }
-            item {
-                val options = listOf("すべての表示", "自分の表示")
-                SingleChoiceSegmentedButtonRow(
-                    modifier = Modifier
-                        .background(colorScheme.background)
-                        .padding(20.dp)
-                        .fillMaxWidth(),
-                ) {
-                    options.forEachIndexed { index, label ->
-                        SegmentedButton(
-                            shape = SegmentedButtonDefaults.itemShape(
-                                index = index,
-                                count = options.size
-                            ),
-                            onClick = { segmentIndex = index },
-                            selected = index == segmentIndex
-                        ) {
-                            Text(label)
-                        }
-                    }
-                }
-            }
-//            for (i in 0..14){
-//                item {
-//                    ListContent(data = "test datum")
-//                }
-//            }
-            items(15){
-                ListContent(data = "test datum")
+            repeat(10) {
+                ListContent(data = it.toString()+" test data")
             }
         }
     }
