@@ -76,10 +76,10 @@ fun HomeView(navController: NavHostController) {
         },
         floatingActionButton = {
             val TAG = "test"
-            if (state.value != 0) {
+            if (state.value >= 50 && fabOfset < 80) {
                 fabOfset += 3
-            }else if(state.value > 50 && fabOfset > 0){
-                fabOfset -= 3
+            }else if(fabOfset > 0){
+                fabOfset -= 5
             }
             ExtendedFloatingActionButton(
                 modifier = Modifier.offset(
