@@ -1,12 +1,8 @@
 package com.mrfrogman.traveller2.views.account
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material3.Button
@@ -25,7 +21,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import com.mrfrogman.traveller2.views.TitleButton
 import com.mrfrogman.traveller2.views.compose.TicketTextField
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -59,16 +54,18 @@ fun LoginView(
                 contentDescription = "",
                 label = "メールアドレス",
                 value = email,
-            ){
-                email = it
-            }
+                onValueChange = {
+                    email = it
+                },
+            )
             TicketTextField(
                 contentDescription = "",
                 label = "パスワード",
                 value = pass,
-            ){
-                pass = it
-            }
+                onValueChange = {
+                    pass = it
+                },
+            )
 
             Spacer(modifier = Modifier.weight(1f))
 

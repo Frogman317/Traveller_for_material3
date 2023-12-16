@@ -76,16 +76,18 @@ fun CreatePlanView(
                 contentDescription = "",
                 label = "タイトル",
                 value = planTitle,
-            ) {
-                planTitle = it
-            }
+                onValueChange = {
+                    planTitle = it
+                },
+            )
             TicketTextField(
                 contentDescription = "",
                 label = "メンバーの追加",
                 value = addMemberName,
-            ){
-                addMemberName = it
-            }
+                onValueChange = {
+                    addMemberName = it
+                },
+            )
             Row(
                 modifier = Modifier
                     .padding(top = 10.dp, bottom = 20.dp)
@@ -109,7 +111,7 @@ fun CreatePlanView(
                 }
             }
             for (i in 0..8){
-                AddMemberList("test")
+                AddMemberList()
             }
         }
     }

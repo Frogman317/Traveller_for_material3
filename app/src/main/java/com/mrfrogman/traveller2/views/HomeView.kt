@@ -1,12 +1,10 @@
 package com.mrfrogman.traveller2.views
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -14,33 +12,39 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.Button
 import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.FilledTonalButton
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme.colorScheme
+import androidx.compose.material3.ModalDrawerSheet
+import androidx.compose.material3.ModalNavigationDrawer
+import androidx.compose.material3.NavigationDrawerItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -49,100 +53,148 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.mrfrogman.traveller2.views.compose.AmountBoard
-import kotlin.math.log
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeView(navController: NavHostController) {
-    val state = rememberScrollState()
+fun HomeView(
+    navController: NavHostController,
+) {
+    val scrollState = rememberScrollState()
     var segmentIndex by remember { mutableIntStateOf(0) }
     val themeGray = if (isSystemInDarkTheme()) Color.LightGray else Color.Gray
-    var fabOfset by remember {
-        mutableStateOf(0)
-    }
-    Scaffold(
-        topBar = {
-            CenterAlignedTopAppBar(
-                title = { Text(text = "記録") },//TODO 仮タイトル
-                navigationIcon = {
-                    IconButton(onClick = { navController.navigateUp() }) {
-                        Icon(
-                            imageVector = Icons.Filled.ArrowBackIosNew,
-                            contentDescription = "Back screen button"
-                        )
-                    }
+    var fabOffset by remember { mutableStateOf(0) }
+    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+    val scope = rememberCoroutineScope()
+    ModalNavigationDrawer(
+        drawerState = drawerState,
+        drawerContent = {
+            val drawerItemModifier = Modifier.padding(4.dp)
+            ModalDrawerSheet {
+                Text("Drawer title", modifier = Modifier.padding(16.dp))
+                HorizontalDivider()
+                Column(Modifier.weight(1f)) {
+                    NavigationDrawerItem(
+                        modifier = drawerItemModifier,
+                        label = { Text(text = "Drawer Item") },
+                        selected = false,
+                        onClick = { /*TODO*/ }
+                    )
+                    NavigationDrawerItem(
+                        modifier = drawerItemModifier,
+                        label = { Text(text = "Drawer Item") },
+                        selected = false,
+                        onClick = { /*TODO*/ }
+                    )
+                    NavigationDrawerItem(
+                        modifier = drawerItemModifier,
+                        label = { Text(text = "Drawer Item") },
+                        selected = false,
+                        onClick = { /*TODO*/ }
+                    )
                 }
-            )
-        },
-        floatingActionButton = {
-            if (state.value >= 50 && fabOfset < 80) {
-                fabOfset += 3
-            }else if(fabOfset > 0){
-                fabOfset -= 5
+                HorizontalDivider()
+                NavigationDrawerItem(
+                    modifier = drawerItemModifier,
+                    icon = { Icon(imageVector = Icons.Outlined.Settings, contentDescription = "Setting icon") },
+                    label = { Text(text = "設定") },
+                    selected = false,
+                    onClick = { /*TODO*/ }
+                )
             }
-            ExtendedFloatingActionButton(
-                modifier = Modifier.offset(
-                    y = fabOfset.dp
-                ),
-                onClick = {
-                    Log.d("TAG", "HomeView: ")
-                },
-                icon = { Icon(Icons.Filled.Add, "Localized Description") },
-                text = { Text(text = "支払いの追加") },
-            )
         }
-    ) { innerPadding ->
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(innerPadding)
-                .verticalScroll(state),
-        ) {
-            AmountBoard(themeGray)
-            Row(
-                modifier = Modifier
-                    .padding(top = 20.dp)
-                    .fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center
-            ) {
-                FilledTonalButton(
-                    modifier = Modifier.width(150.dp),
-                    onClick = {
-
-                    }) {
-                    Text(text = "詳細")
+    ) {
+        Scaffold(
+            topBar = {
+                CenterAlignedTopAppBar(
+                    title = { Text(text = "記録") },//TODO 仮タイトル
+                    navigationIcon = {
+                        IconButton(onClick = {
+                            scope.launch {
+                                drawerState.apply {
+                                    if (isClosed) open() else close()
+                                }
+                            }
+                        }) {
+                            Icon(
+                                imageVector = Icons.Filled.Menu,
+                                contentDescription = "Back screen button"
+                            )
+                        }
+                    }
+                )
+            },
+            floatingActionButton = {
+                if (scrollState.value >= 50 && fabOffset < 80) {
+                    fabOffset += 3
+                } else if (fabOffset > 0) {
+                    fabOffset -= 5
                 }
-                Spacer(modifier = Modifier.width(40.dp))
-                Button(
-                    modifier = Modifier.width(150.dp),
+                ExtendedFloatingActionButton(
+                    modifier = Modifier.offset(
+                        y = fabOffset.dp
+                    ),
                     onClick = {
-
-                    }) {
-                    Text(text = "メンバーの追加")
-                }
+                        navController.navigate("pay")
+                    },
+                    icon = { Icon(Icons.Filled.Add, "Localized Description") },
+                    text = { Text(text = "支払いの追加") },
+                )
             }
-            val options = listOf("すべての表示", "自分の表示")
-            SingleChoiceSegmentedButtonRow(
+        ) { innerPadding ->
+            Column(
                 modifier = Modifier
-                    .background(colorScheme.background)
-                    .padding(20.dp)
-                    .fillMaxWidth(),
+                    .fillMaxWidth()
+                    .padding(innerPadding)
+                    .verticalScroll(scrollState),
             ) {
-                options.forEachIndexed { index, label ->
-                    SegmentedButton(
-                        shape = SegmentedButtonDefaults.itemShape(
-                            index = index,
-                            count = options.size
-                        ),
-                        onClick = { segmentIndex = index },
-                        selected = index == segmentIndex
-                    ) {
-                        Text(label)
+                AmountBoard(themeGray)
+                Row(
+                    modifier = Modifier
+                        .padding(top = 20.dp)
+                        .fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    FilledTonalButton(
+                        modifier = Modifier.width(150.dp),
+                        onClick = {
+
+                        }) {
+                        Text(text = "詳細")
+                    }
+                    Spacer(modifier = Modifier.width(40.dp))
+                    Button(
+                        modifier = Modifier.width(150.dp),
+                        onClick = {
+
+                        }) {
+                        Text(text = "メンバーの追加")
                     }
                 }
-            }
-            repeat(10) {
-                ListContent(data = it.toString()+" test data")
+                val options = listOf("すべての表示", "自分の表示")
+                SingleChoiceSegmentedButtonRow(
+                    modifier = Modifier
+                        .background(colorScheme.background)
+                        .padding(20.dp)
+                        .fillMaxWidth(),
+                ) {
+                    options.forEachIndexed { index, label ->
+                        SegmentedButton(
+                            shape = SegmentedButtonDefaults.itemShape(
+                                index = index,
+                                count = options.size
+                            ),
+                            onClick = { segmentIndex = index },
+                            selected = index == segmentIndex
+                        ) {
+                            Text(label)
+                        }
+                    }
+                }
+                repeat(10) {
+                    ListContent(data = "$it test data")
+                }
+                Spacer(modifier = Modifier.height(80.dp))
             }
         }
     }

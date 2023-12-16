@@ -58,30 +58,34 @@ fun RegisterView(
                 contentDescription = "",
                 label = "ユーザー名",
                 value = user,
-            ){
-                user = it
-            }
+                onValueChange = {
+                    user = it
+                },
+            )
             TicketTextField(
                 contentDescription = "",
                 label = "メールアドレス",
                 value = email,
-            ){
-                email = it
-            }
+                onValueChange = {
+                    email = it
+                },
+            )
             TicketTextField(
                 contentDescription = "",
                 label = "パスワード",
                 value = pass,
-            ){
-                pass = it
-            }
+                onValueChange = {
+                    pass = it
+                },
+            )
             TicketTextField(
                 contentDescription = "",
                 label = "パスワード再入力",
                 value = repass,
-            ){
-                repass = it
-            }
+                onValueChange = {
+                    repass = it
+                },
+            )
 
             Spacer(modifier = Modifier.weight(1f))
 

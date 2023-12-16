@@ -56,9 +56,10 @@ fun JoinPlanView(
                 contentDescription = "",
                 label = "招待コード",
                 value = invitation,
-            ){
-                invitation = it
-            }
+                onValueChange = {
+                    invitation = it
+                },
+            )
 
             Button(
                 modifier = Modifier
