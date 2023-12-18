@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -18,7 +19,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
@@ -38,11 +38,12 @@ fun TicketTextField(
     keyboardType: KeyboardType = KeyboardType.Text,
     keyboardActions: KeyboardActions = KeyboardActions(onDone = {}),
     onValueChange: (String) -> Unit,
+    textModifier: Modifier = Modifier,
 ) {
     Box(
         modifier = modifier
             .padding(top = 8.dp)
-            .fillMaxWidth(),
+            .width(400.dp),
         contentAlignment = Alignment.TopCenter
     ){
         Image(
@@ -67,7 +68,7 @@ fun TicketTextField(
             colorFilter = ColorFilter.tint(color = colorScheme.primaryContainer)
         )
         OutlinedTextField(
-            modifier = Modifier
+            modifier = textModifier
                 .padding(top = 4.dp)
                 .fillMaxWidth(0.8f),
             label = {
