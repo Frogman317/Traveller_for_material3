@@ -2,25 +2,31 @@ package com.mrfrogman.traveller2.views
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material3.Button
 import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -29,7 +35,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.core.text.isDigitsOnly
@@ -111,56 +117,140 @@ fun AddPayView(
                 },
             )
 
-            val memberList = listOf("hoge1", "hoge2", "hoge3", "hoge4", "hoge5")
-            val (selectedOption, onOptionSelected) = remember { mutableStateOf(memberList[0]) }
-            memberList.forEach {
-                PayContent(
-                    allAmount = allAmount,
-                    memberName = it,
-                    selectedOption = selectedOption,
-                    onOptionSelected = onOptionSelected
+            val memberList by remember { mutableStateOf(mutableStateListOf<String>("name1", "name2", "name3", "name4", "name5")) }
+            val amountList by remember { mutableStateOf(mutableStateListOf<String>("","","","","")) }
+            val isPaidList by remember { mutableStateOf(mutableStateListOf<Boolean>(false,false,false,false,false)) }
+            var paidMember by remember { mutableStateOf("") }
+            var isExpanded by remember { mutableStateOf(false) }
+
+            ExposedDropdownMenuBox(
+                expanded = isExpanded,
+                onExpandedChange = {
+                    isExpanded = it
+                }
+            ) {
+                TextField(
+                    label = { Text(text = "支払い者")},
+                    value = paidMember,
+                    onValueChange = {},
+                    readOnly = true,
+                    trailingIcon = {
+                        ExposedDropdownMenuDefaults.TrailingIcon(expanded = isExpanded)
+                    },
+                    placeholder = {
+                        Text(text = "選択してください")
+                    },
+                    colors = ExposedDropdownMenuDefaults.textFieldColors(),
+                    modifier = Modifier
+                        .menuAnchor()
+                        .fillMaxWidth(0.8f)
+                )
+                
+
+                ExposedDropdownMenu(
+                    expanded = isExpanded,
+                    onDismissRequest = {
+                        isExpanded = false
+                    }
+                ) {
+                    for (index in memberList.indices){
+                        DropdownMenuItem(
+                            text = {
+                                Text(text = memberList[index])
+                            },
+                            onClick = {
+                                isPaidList[index] = true
+                                paidMember = memberList[index]
+                                isExpanded = false
+                            }
+                        )
+                    }
+                }
+            }
+
+            Row(
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+                verticalAlignment = Alignment.Bottom
+            )  {
+                Text(
+                    text = "支払い可否",
+                    modifier = Modifier.width(60.dp)
+                )
+                Text(
+                    text = "名前",
+                    modifier = Modifier.weight(1f)
+                )
+                Text(
+                    text = "金額",
+                    modifier = Modifier.width(120.dp)
                 )
             }
-        }
-    }
-}
 
-@Composable
-fun PayContent(
-    allAmount: String,
-    memberName: String,
-    selectedOption: String,
-    onOptionSelected: (String) -> Unit
-) {
-    Row(
-        modifier = Modifier
-            .height(56.dp)
-            .padding(horizontal = 16.dp)
-            .selectable(
-                selected = (memberName == selectedOption),
-                onClick = { onOptionSelected(memberName) },
-                role = Role.RadioButton
-            ),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        RadioButton(
-            selected = (memberName == selectedOption),
-            onClick = null
-        )
-        Text(
-            text = memberName,
-            modifier = Modifier.padding(start = 16.dp)
-        )
-        TextField(
-            label = {
-                var amount = 0L
-                if (allAmount != ""){
-                    amount = allAmount.toLong() / 5
+            HorizontalDivider()
+
+            for (index in memberList.indices){
+                Row(
+                    modifier = Modifier
+                        .padding(horizontal = 16.dp, vertical = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    if ((amountList[index] != "" ) or (paidMember == memberList[index])){
+                        isPaidList[index] = true
+                    }
+                    Checkbox(
+                        checked = isPaidList[index],
+                        onCheckedChange = {
+                            isPaidList[index] = it
+                            if (!it){
+                                amountList[index] = ""
+                            }
+                        }
+                    )
+                    Text(
+                        text = memberList[index],
+                        modifier = Modifier
+                            .padding(start = 16.dp)
+                            .weight(1f)
+                    )
+                    var amount = 0
+                    val trueCount = isPaidList.count { it }
+                    val paidCount = amountList.count { it != "" }
+                    var paid = 0
+                    if (isPaidList[index]){
+                        for( i in amountList ){
+                            if  (i != "") {
+                                paid += i.toInt()
+                            }
+                        }
+                        if (allAmount != ""){
+                            amount = (allAmount.toInt() - paid) / (trueCount - paidCount)
+                        }
+                    }
+                    if (paidMember == memberList[index]){
+                        if (allAmount != ""){
+                            amount += (allAmount.toInt() - paid ) % trueCount
+                        }
+                    }
+                    TextField(
+                        modifier = Modifier
+                            .width(120.dp),
+                        placeholder = {
+                            Text(text = amount.toString())
+                        },
+                        value = amountList[index],
+                        maxLines = 1,
+                        onValueChange = {
+                            if (it.isDigitsOnly()){
+                                amountList[index] = it
+                            }
+                        },
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Number,
+                            imeAction = ImeAction.Done
+                        )
+                    )
                 }
-                Text(text = amount.toString())
-            },
-            value = "",
-            onValueChange = {}
-        )
+            }
+        }
     }
 }
