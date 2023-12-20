@@ -26,11 +26,6 @@ fun MainNavigation(
         navController = navController,
         startDestination = startDestination,
     ) {
-        composable(route = "title") {
-            TitleView(
-                navController = navController,
-            )
-        }
         composable(route = "starter") {
             StarterView(
                 navController = navController,
@@ -46,16 +41,6 @@ fun MainNavigation(
                 navController = navController,
             )
         }
-        composable(route = "login") {
-            LoginView(
-                navController = navController,
-            )
-        }
-        composable(route = "register") {
-            RegisterView(
-                navController = navController,
-            )
-        }
         composable(route = "home") {
             HomeView(
                 navController = navController,
@@ -63,6 +48,23 @@ fun MainNavigation(
         }
         composable(route = "pay") {
             AddPayView(
+                navController = navController,
+            )
+        }
+
+        // ログイン機能は実装予定
+        composable(route = "title") {
+            TitleView(
+                navController = navController,
+            )
+        }
+        composable(route = "login") {
+            LoginView(
+                navController = navController,
+            )
+        }
+        composable(route = "register") {
+            RegisterView(
                 navController = navController,
             )
         }
