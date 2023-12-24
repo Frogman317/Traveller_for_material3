@@ -41,6 +41,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.text.isDigitsOnly
 import androidx.navigation.NavHostController
 import com.mrfrogman.traveller2.views.compose.TicketTextField
+import java.lang.Integer.MAX_VALUE
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -120,7 +121,7 @@ fun AddPayView(
             val memberList by remember { mutableStateOf(mutableStateListOf<String>("name1", "name2", "name3", "name4", "name5")) }
             val amountList by remember { mutableStateOf(mutableStateListOf<String>("","","","","")) }
             val isPaidList by remember { mutableStateOf(mutableStateListOf<Boolean>(false,false,false,false,false)) }
-            var paidMember by remember { mutableStateOf("") }
+            var paidMember by remember { mutableStateOf(-1) }
             var isExpanded by remember { mutableStateOf(false) }
 
             ExposedDropdownMenuBox(
@@ -129,9 +130,13 @@ fun AddPayView(
                     isExpanded = it
                 }
             ) {
+                var dropdownText = ""
+                if (paidMember > -1){
+                    dropdownText = memberList[paidMember]
+                }
                 TextField(
                     label = { Text(text = "支払い者")},
-                    value = paidMember,
+                    value = dropdownText,
                     onValueChange = {},
                     readOnly = true,
                     trailingIcon = {
@@ -160,7 +165,7 @@ fun AddPayView(
                             },
                             onClick = {
                                 isPaidList[index] = true
-                                paidMember = memberList[index]
+                                paidMember = index
                                 isExpanded = false
                             }
                         )
@@ -194,9 +199,7 @@ fun AddPayView(
                         .padding(horizontal = 16.dp, vertical = 8.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    if ((amountList[index] != "" ) or (paidMember == memberList[index])){
-                        isPaidList[index] = true
-                    }
+                    if ((amountList[index] != "" ) or (paidMember == index)) isPaidList[index] = true
                     Checkbox(
                         checked = isPaidList[index],
                         onCheckedChange = {
@@ -213,22 +216,12 @@ fun AddPayView(
                             .weight(1f)
                     )
                     var amount = 0
-                    val trueCount = isPaidList.count { it }
-                    val paidCount = amountList.count { it != "" }
-                    var paid = 0
-                    if (isPaidList[index]){
-                        for( i in amountList ){
-                            if  (i != "") {
-                                paid += i.toInt()
-                            }
-                        }
-                        if (allAmount != ""){
-                            amount = (allAmount.toInt() - paid) / (trueCount - paidCount)
-                        }
-                    }
-                    if (paidMember == memberList[index]){
-                        if (allAmount != ""){
-                            amount += (allAmount.toInt() - paid ) % trueCount
+                    val isPaidCount = isPaidList.count { it }
+                    val amountCount = amountList.count { it != "" }
+                    val unspecified = isPaidCount - amountCount
+                    if (unspecified > 0){
+                        if (true){
+                            
                         }
                     }
                     TextField(

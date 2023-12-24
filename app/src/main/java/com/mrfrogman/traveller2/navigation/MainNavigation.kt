@@ -20,6 +20,7 @@ fun MainNavigation(
     modifier: Modifier = Modifier,
     navController: NavHostController = rememberNavController(),
     startDestination: String = "pay",
+    planId: String = ""
 ) {
     NavHost(
         modifier = modifier,
