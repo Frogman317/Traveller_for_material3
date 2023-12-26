@@ -2,13 +2,15 @@ package com.mrfrogman.traveller2.database
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import java.util.Date
 
 @Entity
-class PlanEntity(
+data class PlanEntity(
     @PrimaryKey(autoGenerate = true)
-    var id: Int,
+    val id: Int,
     val title: String,
     val detail: String,
     val amount: Int,
-    val timestamp: String
+    val create: Date,
+    val timestamp: Date,
 )

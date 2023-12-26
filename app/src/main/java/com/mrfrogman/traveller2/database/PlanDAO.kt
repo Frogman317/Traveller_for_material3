@@ -7,9 +7,11 @@ import androidx.room.Query
 
 @Dao
 interface PlanDAO {
+
     @Insert
     fun insert(plan: PlanEntity)
 
-    @Query("select * from PlanEntity")
-    fun getAll(): LiveData<List<PlanEntity>>
+    @Query("SELECT * FROM PlanEntity")
+    fun getAll(): LiveData<PlanEntity>
+
 }

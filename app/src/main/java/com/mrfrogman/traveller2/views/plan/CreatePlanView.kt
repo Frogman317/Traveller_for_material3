@@ -28,8 +28,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import com.mrfrogman.traveller2.database.PlanDAO
-import com.mrfrogman.traveller2.database.PlanDatabase
 import com.mrfrogman.traveller2.views.compose.AddMemberList
 import com.mrfrogman.traveller2.views.compose.TicketTextField
 
@@ -57,7 +55,7 @@ fun CreatePlanView(
                 actions = {
                     Button(
                         onClick = {
-                            //navController.navigate("home")
+                            //navController.navigate("home") TODO
                         }
                     ){
                         Text(text = "作成")
