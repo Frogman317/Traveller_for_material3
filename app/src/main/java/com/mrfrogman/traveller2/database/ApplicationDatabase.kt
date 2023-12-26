@@ -7,11 +7,14 @@ import com.mrfrogman.traveller2.tool.DateConverters
 
 @Database(
     entities = [
-        PlanEntity::class
+        PlanEntity::class,
+        MemberEntity::class
     ],
-    version = 1
+    version = 1,
+    exportSchema = false
 )
 @TypeConverters(DateConverters::class)
 abstract class ApplicationDatabase: RoomDatabase() {
     abstract fun planDAO(): PlanDAO
+    abstract fun memberDAO(): MemberDAO
 }

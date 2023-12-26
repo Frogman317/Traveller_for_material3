@@ -8,22 +8,23 @@ import androidx.room.Query
 import java.time.LocalDateTime
 
 @Entity
-data class PlanEntity(
+data class ExpensesEntity(
     @PrimaryKey(autoGenerate = true)
     val id: Int,
     val title: String,
     val detail: String,
+    val planId: Int,
     val amount: Int,
     val create: LocalDateTime,
     val timestamp: LocalDateTime,
 )
 @Dao
-interface PlanDAO {
+interface ExpensesDAO {
 
-    @Insert(entity = PlanEntity::class)
-    fun insert(plan: PlanEntity): Long
+    @Insert(entity = ExpensesEntity::class)
+    fun insert(member: ExpensesEntity)
 
-    @Query("SELECT * FROM PlanEntity")
-    fun getAll(): List<PlanEntity>
+    @Query("SELECT * FROM ExpensesEntity")
+    fun getAll(): List<ExpensesEntity>
 
 }

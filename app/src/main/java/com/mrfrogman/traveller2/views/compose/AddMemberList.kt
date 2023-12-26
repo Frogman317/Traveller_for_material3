@@ -26,11 +26,9 @@ import androidx.compose.ui.unit.sp
 @Composable
 fun AddMemberList(
     member: String = "Default Name",
+    deleteMember: (String) -> Unit
 ) {
     var showFlg by remember { mutableStateOf(false) }
-    HorizontalDivider(
-        modifier = Modifier.padding(horizontal = 16.dp)
-    )
     Row(
         modifier = Modifier.padding(vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically
@@ -74,9 +72,12 @@ fun AddMemberList(
                         )
                     },
                     text = { Text(text = "削除") },
-                    onClick = { /*TODO*/ }
+                    onClick = { deleteMember(member) }
                 )
             }
         }
     }
+    HorizontalDivider(
+        modifier = Modifier.padding(horizontal = 16.dp)
+    )
 }

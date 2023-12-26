@@ -1,5 +1,6 @@
 package com.mrfrogman.traveller2.views
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -39,6 +40,7 @@ import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -49,11 +51,19 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.navigation.NavHostController
+import androidx.room.Room
+import com.mrfrogman.traveller2.database.ApplicationDatabase
+import com.mrfrogman.traveller2.database.PlanEntity
 import com.mrfrogman.traveller2.views.compose.AmountBoard
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -66,6 +76,28 @@ fun HomeView(
     var fabOffset by remember { mutableStateOf(0) }
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
+
+    val context = LocalContext.current
+    val db = remember {
+        Room.databaseBuilder(
+            context,
+            ApplicationDatabase::class.java,
+            "my-database"
+        ).build()
+    }
+    val planDao = remember(db) { db.planDAO() }
+    DisposableEffect(Unit) {
+        onDispose { db.close() }
+    }
+    val composableScope = rememberCoroutineScope()
+    var planList by remember { mutableStateOf<List<PlanEntity>>(mutableListOf()) }
+    composableScope.launch {
+        withContext(Dispatchers.IO) {
+            planList = planDao.getAll()
+        }
+    }
+    var drawerSelected by remember { mutableStateOf(-1) }
+
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
@@ -74,24 +106,16 @@ fun HomeView(
                 Text("Drawer title", modifier = Modifier.padding(16.dp))
                 HorizontalDivider()
                 Column(Modifier.weight(1f)) {
-                    NavigationDrawerItem(
-                        modifier = drawerItemModifier,
-                        label = { Text(text = "Drawer Item") },
-                        selected = false,
-                        onClick = { /*TODO*/ }
-                    )
-                    NavigationDrawerItem(
-                        modifier = drawerItemModifier,
-                        label = { Text(text = "Drawer Item") },
-                        selected = false,
-                        onClick = { /*TODO*/ }
-                    )
-                    NavigationDrawerItem(
-                        modifier = drawerItemModifier,
-                        label = { Text(text = "Drawer Item") },
-                        selected = false,
-                        onClick = { /*TODO*/ }
-                    )
+                    planList.forEach{
+                        NavigationDrawerItem(
+                                modifier = drawerItemModifier,
+                        label = { Text(text = it.title) },
+                        selected = it.id == drawerSelected,
+                        onClick = {
+                            drawerSelected = it.id
+                        }
+                        )
+                    }
                 }
                 HorizontalDivider()
                 NavigationDrawerItem(
@@ -191,9 +215,9 @@ fun HomeView(
                         }
                     }
                 }
-                repeat(10) {
-                    ListContent(data = "$it test data")
-                }
+//                repeat(10) {
+//                    ListContent(data = "$it test data")
+//                }
                 Spacer(modifier = Modifier.height(80.dp))
             }
         }

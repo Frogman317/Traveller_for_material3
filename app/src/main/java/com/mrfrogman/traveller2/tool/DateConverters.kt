@@ -1,16 +1,17 @@
 package com.mrfrogman.traveller2.tool
 
 import androidx.room.TypeConverter
-import java.util.Date
+import java.time.LocalDate
+import java.time.LocalDateTime
 
 class DateConverters {
     @TypeConverter
-    fun fromTimestamp(value: Long?): Date? {
-        return value?.let { Date(it) }
+    fun fromLocalDate(localDate: LocalDateTime): String {
+        return localDate.toString()
     }
 
     @TypeConverter
-    fun dateToTimestamp(date: Date?) : Long? {
-        return date?.time
+    fun toLocalDate(stringDate: String): LocalDateTime {
+        return LocalDateTime.parse(stringDate)
     }
 }

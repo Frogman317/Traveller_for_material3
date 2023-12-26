@@ -19,7 +19,7 @@ import com.mrfrogman.traveller2.views.plan.JoinPlanView
 fun MainNavigation(
     modifier: Modifier = Modifier,
     navController: NavHostController = rememberNavController(),
-    startDestination: String = "pay",
+    startDestination: String = "starter",
     planId: String = ""
 ) {
     NavHost(
