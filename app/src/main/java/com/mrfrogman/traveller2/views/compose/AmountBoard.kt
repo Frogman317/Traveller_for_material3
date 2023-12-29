@@ -32,7 +32,10 @@ import androidx.compose.ui.unit.sp
 import com.mrfrogman.traveller2.R
 
 @Composable
-fun AmountBoard(themeGray: Color) {
+fun AmountBoard(
+    amount: String = "0",
+    themeGray: Color
+) {
     Box(
         modifier = Modifier.fillMaxWidth(),
         contentAlignment = Alignment.Center,
@@ -103,7 +106,7 @@ fun AmountBoard(themeGray: Color) {
                     )
                     Text(
                         modifier = Modifier.fillMaxWidth(),
-                        text = "1,000,000円",
+                        text = amount+"円",
                         textAlign = TextAlign.Center,
                         fontSize = 26.sp,
                         fontWeight = FontWeight.Bold

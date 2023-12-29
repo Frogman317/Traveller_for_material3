@@ -26,4 +26,8 @@ interface MemberDAO {
     @Query("SELECT * FROM MemberEntity")
     fun getAll(): List<MemberEntity>
 
+
+    @Query("SELECT * FROM MemberEntity WHERE planId = :planId")
+    fun getAll(planId: String): List<MemberEntity>
+
 }

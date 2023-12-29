@@ -13,7 +13,6 @@ data class PlanEntity(
     val id: Int,
     val title: String,
     val detail: String,
-    val amount: Int,
     val create: LocalDateTime,
     val timestamp: LocalDateTime,
 )
@@ -25,5 +24,8 @@ interface PlanDAO {
 
     @Query("SELECT * FROM PlanEntity")
     fun getAll(): List<PlanEntity>
+
+    @Query("SELECT * FROM PlanEntity WHERE id = :planId")
+    fun search(planId: String): List<PlanEntity>
 
 }

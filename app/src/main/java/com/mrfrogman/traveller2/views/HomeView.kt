@@ -1,6 +1,5 @@
 package com.mrfrogman.traveller2.views
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -41,6 +40,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -54,8 +54,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.navigation.NavHostController
 import androidx.room.Room
 import com.mrfrogman.traveller2.database.ApplicationDatabase
@@ -64,11 +62,13 @@ import com.mrfrogman.traveller2.views.compose.AmountBoard
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.time.LocalDateTime
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeView(
     navController: NavHostController,
+    planId: String,
 ) {
     val scrollState = rememberScrollState()
     var segmentIndex by remember { mutableIntStateOf(0) }
@@ -78,25 +78,37 @@ fun HomeView(
     val scope = rememberCoroutineScope()
 
     val context = LocalContext.current
-    val db = remember {
-        Room.databaseBuilder(
-            context,
-            ApplicationDatabase::class.java,
-            "my-database"
-        ).build()
-    }
+    val db = remember { Room.databaseBuilder(context, ApplicationDatabase::class.java, "my-database").build() }
     val planDao = remember(db) { db.planDAO() }
-    DisposableEffect(Unit) {
-        onDispose { db.close() }
-    }
-    val composableScope = rememberCoroutineScope()
-    var planList by remember { mutableStateOf<List<PlanEntity>>(mutableListOf()) }
-    composableScope.launch {
-        withContext(Dispatchers.IO) {
-            planList = planDao.getAll()
+    val expensesDao = remember(db) { db.expensesDAO() }
+    DisposableEffect(Unit) { onDispose { db.close() } }
+
+    val dateTime = LocalDateTime.now()
+    var planData by remember { mutableStateOf(PlanEntity(
+        id = 0,
+        title = "",
+        detail = "",
+        create = dateTime,
+        timestamp = dateTime
+    )) }
+    var amount by remember  { mutableStateOf("0")}
+    LaunchedEffect(true) {
+        amount = withContext(Dispatchers.IO) {
+            expensesDao.getAmount(planId).toString()
         }
     }
-    var drawerSelected by remember { mutableStateOf(-1) }
+    var planList by remember { mutableStateOf(emptyList<PlanEntity>()) }
+    LaunchedEffect(true) {
+        planList = withContext(Dispatchers.IO) {
+            planDao.getAll()
+        }
+        planList.forEach {
+            if (it.id.toString() == planId){
+                planData = it
+            }
+        }
+    }
+    var drawerSelected by remember { mutableStateOf(planId) }
 
     ModalNavigationDrawer(
         drawerState = drawerState,
@@ -110,9 +122,9 @@ fun HomeView(
                         NavigationDrawerItem(
                                 modifier = drawerItemModifier,
                         label = { Text(text = it.title) },
-                        selected = it.id == drawerSelected,
+                        selected = it.id.toString() == drawerSelected,
                         onClick = {
-                            drawerSelected = it.id
+                            drawerSelected = it.id.toString()
                         }
                         )
                     }
@@ -131,7 +143,7 @@ fun HomeView(
         Scaffold(
             topBar = {
                 CenterAlignedTopAppBar(
-                    title = { Text(text = "記録") },//TODO 仮タイトル
+                    title = { Text(text = planData.title) },//TODO 仮タイトル
                     navigationIcon = {
                         IconButton(onClick = {
                             scope.launch {
@@ -172,7 +184,10 @@ fun HomeView(
                     .padding(innerPadding)
                     .verticalScroll(scrollState),
             ) {
-                AmountBoard(themeGray)
+                AmountBoard(
+                    amount = amount,
+                    themeGray = themeGray
+                )
                 Row(
                     modifier = Modifier
                         .padding(top = 20.dp)

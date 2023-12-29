@@ -23,7 +23,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -34,11 +33,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.datastore.preferences.preferencesDataStore
 import androidx.navigation.NavHostController
 import androidx.room.Room
+import com.mrfrogman.traveller2.database.ApplicationDataStore
 import com.mrfrogman.traveller2.database.ApplicationDatabase
 import com.mrfrogman.traveller2.database.MemberEntity
-import com.mrfrogman.traveller2.database.PlanDAO
 import com.mrfrogman.traveller2.database.PlanEntity
 import com.mrfrogman.traveller2.views.compose.AddMemberList
 import com.mrfrogman.traveller2.views.compose.TicketTextField
@@ -55,14 +59,9 @@ fun CreatePlanView(
     var planTitle by remember { mutableStateOf("") }
     var addMemberName by remember { mutableStateOf("") }
     val memberList = remember { mutableStateListOf<String>() }
+
     val context = LocalContext.current
-    val db = remember {
-        Room.databaseBuilder(
-            context,
-            ApplicationDatabase::class.java,
-            "my-database"
-        ).build()
-    }
+    val db = remember { Room.databaseBuilder(context, ApplicationDatabase::class.java, "my-database").build() }
     val planDao = remember(db) { db.planDAO() }
     val memberDao = remember(db) { db.memberDAO() }
     DisposableEffect(Unit) {
@@ -93,7 +92,6 @@ fun CreatePlanView(
                                         id = 0,
                                         title = planTitle,
                                         detail = "",
-                                        amount = 0,
                                         create = localTime,
                                         timestamp = localTime
                                     ))
@@ -107,7 +105,9 @@ fun CreatePlanView(
                                             timestamp = localTime
                                         ))
                                     }
-                                    Log.d("TAG", "CreatePlanView: $id")
+                                    val dataStore = ApplicationDataStore(context,"planId")
+                                    dataStore.saveData(id.toString())
+                                    Log.d("planId", "CreatePlanId: $id")
                                 }
                                 navController.navigate("home")
                             }
@@ -163,7 +163,6 @@ fun CreatePlanView(
                         if (addMemberName != ""){
                             memberList.add(addMemberName)
                             addMemberName = ""
-                            Log.d("TAG", "CreatePlanView: "+memberList.size)
                         }
                     }) {
                     Text(text = "メンバーの追加")

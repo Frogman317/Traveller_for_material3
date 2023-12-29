@@ -15,6 +15,7 @@ data class ExpensesEntity(
     val detail: String,
     val planId: Int,
     val amount: Int,
+    val receipt: Map<String,String>,
     val create: LocalDateTime,
     val timestamp: LocalDateTime,
 )
@@ -22,9 +23,12 @@ data class ExpensesEntity(
 interface ExpensesDAO {
 
     @Insert(entity = ExpensesEntity::class)
-    fun insert(member: ExpensesEntity)
+    fun insert(member: ExpensesEntity): Long
 
     @Query("SELECT * FROM ExpensesEntity")
     fun getAll(): List<ExpensesEntity>
+
+    @Query("SELECT SUM(amount) FROM ExpensesEntity WHERE planId = :planId")
+    fun getAmount(planId: String): Long
 
 }

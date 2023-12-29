@@ -1,5 +1,6 @@
 package com.mrfrogman.traveller2.views
 
+import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -25,6 +26,8 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -34,25 +37,57 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.core.text.isDigitsOnly
 import androidx.navigation.NavHostController
+import androidx.room.Room
+import com.mrfrogman.traveller2.database.ApplicationDatabase
+import com.mrfrogman.traveller2.database.MemberEntity
+import com.mrfrogman.traveller2.database.PlanEntity
 import com.mrfrogman.traveller2.views.compose.TicketTextField
-import java.lang.Integer.MAX_VALUE
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddPayView(
     navController: NavHostController,
+    planId: String
 ) {
     val scrollState = rememberScrollState()
     var allAmount by remember { mutableStateOf("") }
     var title by remember { mutableStateOf("") }
     val focusManager = LocalFocusManager.current
     val requiredFocus = remember { FocusRequester() }
+
+    var paidMember by remember { mutableStateOf(-1) }
+    var isExpanded by remember { mutableStateOf(false) }
+
+    //DB
+    val context = LocalContext.current
+    val db = remember { Room.databaseBuilder(context, ApplicationDatabase::class.java, "my-database").build() }
+    val expensesDao = remember(db) { db.expensesDAO() }
+    val memberDao = remember(db) { db.memberDAO() }
+    DisposableEffect(Unit) { onDispose { db.close() } }
+
+    var memberList by remember { mutableStateOf(emptyList<MemberEntity>()) }
+    val amountList = remember { mutableStateListOf<String>() }
+    val isPaidList = remember { mutableStateListOf<Boolean>()}
+
+    LaunchedEffect(true){
+        memberList = withContext(Dispatchers.IO) {
+            memberDao.getAll(planId)
+        }
+        repeat(memberList.size) {
+            amountList.add("")
+            isPaidList.add(false)
+        }
+    }
+
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
@@ -118,11 +153,8 @@ fun AddPayView(
                 },
             )
 
-            val memberList by remember { mutableStateOf(mutableStateListOf<String>("name1", "name2", "name3", "name4", "name5")) }
-            val amountList by remember { mutableStateOf(mutableStateListOf<String>("","","","","")) }
-            val isPaidList by remember { mutableStateOf(mutableStateListOf<Boolean>(false,false,false,false,false)) }
-            var paidMember by remember { mutableStateOf(-1) }
-            var isExpanded by remember { mutableStateOf(false) }
+
+
 
             ExposedDropdownMenuBox(
                 expanded = isExpanded,
@@ -132,7 +164,7 @@ fun AddPayView(
             ) {
                 var dropdownText = ""
                 if (paidMember > -1){
-                    dropdownText = memberList[paidMember]
+                    dropdownText = memberList[paidMember].name
                 }
                 TextField(
                     label = { Text(text = "支払い者")},
@@ -161,7 +193,7 @@ fun AddPayView(
                     for (index in memberList.indices){
                         DropdownMenuItem(
                             text = {
-                                Text(text = memberList[index])
+                                Text(text = memberList[index].name)
                             },
                             onClick = {
                                 isPaidList[index] = true
@@ -193,6 +225,30 @@ fun AddPayView(
 
             HorizontalDivider()
 
+            var allAmountInt = if (allAmount != "") allAmount.toInt() else 0
+            var dutch = 0
+            var remainder = 0
+            val isPaidCount = isPaidList.count { it }
+            val amountCount = amountList.count { it != "" }
+            val unspecified = isPaidCount - amountCount
+            val sum = amountList.mapNotNull { it.toIntOrNull() }.sum()
+            allAmountInt -= sum
+            Log.d("allAmountInt", "$allAmountInt: $sum")
+            if (unspecified > 0) {
+                remainder = allAmountInt % unspecified
+                dutch = (allAmountInt - remainder) / unspecified
+            }else{
+                remainder = allAmountInt
+            }
+            val placeholderList = IntArray(memberList.size)
+            for (index in amountList.indices) {
+                if (isPaidList[index]){
+                    if (amountList[index] == ""){
+                        placeholderList[index] = dutch
+                    }
+                }
+            }
+
             for (index in memberList.indices){
                 Row(
                     modifier = Modifier
@@ -210,25 +266,21 @@ fun AddPayView(
                         }
                     )
                     Text(
-                        text = memberList[index],
+                        text = memberList[index].name,
                         modifier = Modifier
                             .padding(start = 16.dp)
                             .weight(1f)
                     )
-                    var amount = 0
-                    val isPaidCount = isPaidList.count { it }
-                    val amountCount = amountList.count { it != "" }
-                    val unspecified = isPaidCount - amountCount
-                    if (unspecified > 0){
-                        if (true){
-                            
-                        }
-                    }
                     TextField(
                         modifier = Modifier
                             .width(120.dp),
                         placeholder = {
-                            Text(text = amount.toString())
+                            var text = placeholderList[index]
+                            if (paidMember == index){
+                                text = placeholderList[index] + remainder
+                                Log.d("TAG", "AddPayView: "+placeholderList[index] + remainder) //TODO 文字があるときにはvalueを変えないといけない
+                            }
+                            Text(text = text.toString())
                         },
                         value = amountList[index],
                         maxLines = 1,
