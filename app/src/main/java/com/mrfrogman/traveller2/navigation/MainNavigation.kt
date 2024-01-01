@@ -22,7 +22,7 @@ fun MainNavigation(
     planId: String = "0"
 ) {
     var startDestination = "starter"
-    if (planId != "null"){
+    if (planId != "0"){
         startDestination = "home"
     }
     NavHost(

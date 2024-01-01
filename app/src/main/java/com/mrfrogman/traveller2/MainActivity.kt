@@ -36,10 +36,10 @@ class MainActivity : ComponentActivity() {
                     val context = LocalContext.current
                     LaunchedEffect(key1 = true){
                         val dataStore = ApplicationDataStore(context,"planId")
-                        planId = dataStore.getData.first() ?: "null"
+                        planId = dataStore.getData.first() ?: "0"
                         Log.d("planId", "get plan id: $planId")
                     }
-                    if (planId != "init"){
+                    if (planId != "null"){
                         MainNavigation(planId = planId)
                     }
                 }

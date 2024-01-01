@@ -32,6 +32,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -46,11 +47,13 @@ import androidx.core.text.isDigitsOnly
 import androidx.navigation.NavHostController
 import androidx.room.Room
 import com.mrfrogman.traveller2.database.ApplicationDatabase
+import com.mrfrogman.traveller2.database.ExpensesEntity
 import com.mrfrogman.traveller2.database.MemberEntity
-import com.mrfrogman.traveller2.database.PlanEntity
 import com.mrfrogman.traveller2.views.compose.TicketTextField
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.time.LocalDateTime
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -61,6 +64,7 @@ fun AddPayView(
     val scrollState = rememberScrollState()
     var allAmount by remember { mutableStateOf("") }
     var title by remember { mutableStateOf("") }
+    var dropdownText by remember { mutableStateOf("") }
     val focusManager = LocalFocusManager.current
     val requiredFocus = remember { FocusRequester() }
 
@@ -78,6 +82,17 @@ fun AddPayView(
     val amountList = remember { mutableStateListOf<String>() }
     val isPaidList = remember { mutableStateListOf<Boolean>()}
 
+    //金額の計算用の変数を宣言
+    var allAmountInt = if (allAmount != "") allAmount.toInt() else 0
+    var dutch = 0
+    var remainder: Int
+    val isPaidCount = isPaidList.count { it }
+    val amountCount = amountList.count { it != "" }
+    val unspecified = isPaidCount - amountCount
+    val amountSum = amountList.mapNotNull { it.toIntOrNull() }.sum()
+    val placeholderList = IntArray(memberList.size)
+    val receipt = mutableMapOf<String,String>()
+
     LaunchedEffect(true){
         memberList = withContext(Dispatchers.IO) {
             memberDao.getAll(planId)
@@ -88,6 +103,7 @@ fun AddPayView(
         }
     }
 
+    val composableScope = rememberCoroutineScope()
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
@@ -107,7 +123,50 @@ fun AddPayView(
                 actions = {
                     Button(
                         onClick = {
-                            navController.navigateUp()
+                            var isCanAdd = true
+                            if (title == "") {
+                                isCanAdd = false
+                                //TODO タイトルの記入
+                            }
+                            if (allAmount == ""){
+                                isCanAdd = false
+                                //TODO 金額の記入
+                            }
+                            if (dropdownText == ""){
+                                isCanAdd = false
+                                //TODO 支払者の選択
+                            }
+                            var sum = 0
+                            for (value in receipt.values){
+                                val intValue = value.toIntOrNull() ?: 0
+                                if (intValue < 0){
+                                    isCanAdd = false
+                                    //TODO 各金額の不整合
+                                }
+                                sum += intValue
+                            }
+                            if (sum.toString() != allAmount){
+                                isCanAdd = false
+                                //TODO 各金額の不整合
+                            }
+                            if (isCanAdd) {
+                                composableScope.launch {
+                                    withContext(Dispatchers.IO) {
+                                        val localTime = LocalDateTime.now()
+                                        expensesDao.insert(ExpensesEntity(
+                                            id = 0,
+                                            title = title,
+                                            detail = "",
+                                            planId = planId.toInt(),
+                                            amount = allAmountInt,
+                                            receipt = receipt,
+                                            create = localTime,
+                                            timestamp = localTime
+                                        ))
+                                        navController.navigateUp()
+                                    }
+                                }
+                            }
                         }
                     ){
                         Text(text = "作成")
@@ -162,7 +221,6 @@ fun AddPayView(
                     isExpanded = it
                 }
             ) {
-                var dropdownText = ""
                 if (paidMember > -1){
                     dropdownText = memberList[paidMember].name
                 }
@@ -225,29 +283,35 @@ fun AddPayView(
 
             HorizontalDivider()
 
-            var allAmountInt = if (allAmount != "") allAmount.toInt() else 0
-            var dutch = 0
-            var remainder = 0
-            val isPaidCount = isPaidList.count { it }
-            val amountCount = amountList.count { it != "" }
-            val unspecified = isPaidCount - amountCount
-            val sum = amountList.mapNotNull { it.toIntOrNull() }.sum()
-            allAmountInt -= sum
-            Log.d("allAmountInt", "$allAmountInt: $sum")
+            allAmountInt -= amountSum
             if (unspecified > 0) {
                 remainder = allAmountInt % unspecified
                 dutch = (allAmountInt - remainder) / unspecified
             }else{
                 remainder = allAmountInt
             }
-            val placeholderList = IntArray(memberList.size)
             for (index in amountList.indices) {
                 if (isPaidList[index]){
                     if (amountList[index] == ""){
                         placeholderList[index] = dutch
                     }
                 }
+                if (paidMember == index){
+                    placeholderList[index] = placeholderList[index] + remainder
+                }
             }
+            for (index in memberList.indices) {
+                val memberId = memberList[index].id.toString()
+                receipt[memberId] = "0"
+                if (isPaidList[index]){
+                    if (amountList[index] == ""){
+                        receipt[memberId] = placeholderList[index].toString()
+                    }else{
+                        receipt[memberId] = amountList[index]
+                    }
+                }
+            }
+            Log.d("memberList", receipt.toString())
 
             for (index in memberList.indices){
                 Row(
@@ -275,12 +339,7 @@ fun AddPayView(
                         modifier = Modifier
                             .width(120.dp),
                         placeholder = {
-                            var text = placeholderList[index]
-                            if (paidMember == index){
-                                text = placeholderList[index] + remainder
-                                Log.d("TAG", "AddPayView: "+placeholderList[index] + remainder) //TODO 文字があるときにはvalueを変えないといけない
-                            }
-                            Text(text = text.toString())
+                            Text(text = placeholderList[index].toString())
                         },
                         value = amountList[index],
                         maxLines = 1,
