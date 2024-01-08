@@ -54,7 +54,8 @@ import java.time.LocalDateTime
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreatePlanView(
-    navController: NavHostController
+    navController: NavHostController,
+    setPlanId: (String) -> Unit
 ) {
     var planTitle by remember { mutableStateOf("") }
     var addMemberName by remember { mutableStateOf("") }
@@ -85,29 +86,41 @@ fun CreatePlanView(
                     val composableScope = rememberCoroutineScope()
                     Button(
                         onClick = {
-                            composableScope.launch {
-                                withContext(Dispatchers.IO) {
-                                    val localTime = LocalDateTime.now()
-                                    val id = planDao.insert(PlanEntity(
-                                        id = 0,
-                                        title = planTitle,
-                                        detail = "",
-                                        create = localTime,
-                                        timestamp = localTime
-                                    ))
-                                    memberList.forEach{
-                                        memberDao.insert(MemberEntity(
+                            var flg = true
+                            if (planTitle == ""){
+                                flg = false
+                                //TODO タイトルの記入
+                            }
+                            if (memberList.size == 0){
+                                flg = false
+                                //TODO  メンバーの追加
+                            }
+                            if (flg){
+                                composableScope.launch {
+                                    withContext(Dispatchers.IO) {
+                                        val localTime = LocalDateTime.now()
+                                        val id = planDao.insert(PlanEntity(
                                             id = 0,
-                                            name = it,
+                                            title = planTitle,
                                             detail = "",
-                                            planId = id.toInt(),
                                             create = localTime,
                                             timestamp = localTime
                                         ))
+                                        memberList.forEach{
+                                            memberDao.insert(MemberEntity(
+                                                id = 0,
+                                                name = it,
+                                                detail = "",
+                                                planId = id.toInt(),
+                                                create = localTime,
+                                                timestamp = localTime
+                                            ))
+                                        }
+                                        val dataStore = ApplicationDataStore(context,"planId")
+                                        dataStore.saveData(id.toString())
+                                        Log.d("planId", "CreatePlanId: $id")
+                                        setPlanId(id.toString())
                                     }
-                                    val dataStore = ApplicationDataStore(context,"planId")
-                                    dataStore.saveData(id.toString())
-                                    Log.d("planId", "CreatePlanId: $id")
                                 }
                                 navController.navigate("home")
                             }

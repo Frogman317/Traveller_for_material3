@@ -32,15 +32,15 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    var planId by remember { mutableStateOf("null") }
+                    var planId by remember { mutableStateOf("") }
                     val context = LocalContext.current
                     LaunchedEffect(key1 = true){
                         val dataStore = ApplicationDataStore(context,"planId")
-                        planId = dataStore.getData.first() ?: "0"
+                        planId = dataStore.getData.first() ?: "null"
                         Log.d("planId", "get plan id: $planId")
                     }
-                    if (planId != "null"){
-                        MainNavigation(planId = planId)
+                    if (planId != ""){
+                        MainNavigation(id = planId)
                     }
                 }
             }

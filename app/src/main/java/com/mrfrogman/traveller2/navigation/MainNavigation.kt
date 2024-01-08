@@ -19,10 +19,11 @@ import com.mrfrogman.traveller2.views.plan.JoinPlanView
 fun MainNavigation(
     modifier: Modifier = Modifier,
     navController: NavHostController = rememberNavController(),
-    planId: String = "0"
+    id: String = "0"
 ) {
+    var planId = id
     var startDestination = "starter"
-    if (planId != "0"){
+    if (planId != "null"){
         startDestination = "home"
     }
     NavHost(
@@ -38,7 +39,9 @@ fun MainNavigation(
         composable(route = "plan/create") {
             CreatePlanView(
                 navController = navController,
-            )
+            ){
+                planId = it
+            }
         }
         composable(route = "plan/join") {
             JoinPlanView(
@@ -49,7 +52,9 @@ fun MainNavigation(
             HomeView(
                 navController = navController,
                 planId = planId
-            )
+            ){
+                planId = it
+            }
         }
         composable(route = "pay") {
             AddPayView(

@@ -57,18 +57,21 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.room.Room
 import com.mrfrogman.traveller2.database.ApplicationDatabase
+import com.mrfrogman.traveller2.database.ExpensesEntity
 import com.mrfrogman.traveller2.database.PlanEntity
 import com.mrfrogman.traveller2.views.compose.AmountBoard
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeView(
     navController: NavHostController,
     planId: String,
+    setPlanId: (String) -> Unit
 ) {
     val scrollState = rememberScrollState()
     var segmentIndex by remember { mutableIntStateOf(0) }
@@ -92,9 +95,11 @@ fun HomeView(
         timestamp = dateTime
     )) }
     var amount by remember  { mutableStateOf("0")}
+    var expensesList by remember { mutableStateOf(emptyList<ExpensesEntity>()) }
     LaunchedEffect(true) {
-        amount = withContext(Dispatchers.IO) {
-            expensesDao.getAmount(planId).toString()
+        withContext(Dispatchers.IO) {
+            amount = expensesDao.getAmount(planId).toString()
+            expensesList = expensesDao.search(planId)
         }
     }
     var planList by remember { mutableStateOf(emptyList<PlanEntity>()) }
@@ -125,6 +130,7 @@ fun HomeView(
                         selected = it.id.toString() == drawerSelected,
                         onClick = {
                             drawerSelected = it.id.toString()
+                            setPlanId(it.id.toString())
                         }
                         )
                     }
@@ -230,9 +236,16 @@ fun HomeView(
                         }
                     }
                 }
-//                repeat(10) {
-//                    ListContent(data = "$it test data")
-//                }
+                expensesList.forEach {
+                    val date = it.create
+                    val format = DateTimeFormatter.ofPattern("MM/dd")
+                    val dateF = date.format(format)
+                    ListContent(
+                        title = it.title,
+                        data = it.amount.toString(),
+                        date = dateF
+                    )
+                }
                 Spacer(modifier = Modifier.height(80.dp))
             }
         }
@@ -242,13 +255,15 @@ fun HomeView(
 @Stable
 @Composable
 fun ListContent(
-    data: String
+    title: String,
+    data: String,
+    date: String
 ) {
     val themeGray = if (isSystemInDarkTheme()) Color.LightGray else Color.Gray
     Text(
         modifier = Modifier.padding(start = 16.dp),
         color = themeGray,
-        text = "12/9"
+        text = date
     )
     Row(
         verticalAlignment = Alignment.CenterVertically,
@@ -261,12 +276,12 @@ fun ListContent(
     ) {
         Text(
             modifier = Modifier.padding(start = 16.dp),
-            text = "Item $data",
+            text = title,
             fontWeight = FontWeight.SemiBold,
         )
         Spacer(modifier = Modifier.weight(1f))
         Text(
-            text = "1,000"+"円",
+            text = data+"円",
             fontWeight = FontWeight.Medium,
         )
         Icon(

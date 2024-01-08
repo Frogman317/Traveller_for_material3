@@ -29,6 +29,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -65,6 +66,7 @@ fun AddPayView(
     var allAmount by remember { mutableStateOf("") }
     var title by remember { mutableStateOf("") }
     var dropdownText by remember { mutableStateOf("") }
+    var payer by remember { mutableIntStateOf(-1) }
     val focusManager = LocalFocusManager.current
     val requiredFocus = remember { FocusRequester() }
 
@@ -159,13 +161,14 @@ fun AddPayView(
                                             detail = "",
                                             planId = planId.toInt(),
                                             amount = allAmountInt,
+                                            payer = payer,
                                             receipt = receipt,
                                             create = localTime,
                                             timestamp = localTime
                                         ))
-                                        navController.navigateUp()
                                     }
                                 }
+                                navController.navigateUp()
                             }
                         }
                     ){
@@ -256,6 +259,7 @@ fun AddPayView(
                             onClick = {
                                 isPaidList[index] = true
                                 paidMember = index
+                                payer = memberList[index].id
                                 isExpanded = false
                             }
                         )

@@ -15,6 +15,7 @@ data class ExpensesEntity(
     val detail: String,
     val planId: Int,
     val amount: Int,
+    val payer: Int,
     val receipt: Map<String,String>,
     val create: LocalDateTime,
     val timestamp: LocalDateTime,
@@ -27,6 +28,9 @@ interface ExpensesDAO {
 
     @Query("SELECT * FROM ExpensesEntity")
     fun getAll(): List<ExpensesEntity>
+
+    @Query("SELECT * FROM ExpensesEntity WHERE planId = :planId")
+    fun search(planId: String): List<ExpensesEntity>
 
     @Query("SELECT SUM(amount) FROM ExpensesEntity WHERE planId = :planId")
     fun getAmount(planId: String): Long
