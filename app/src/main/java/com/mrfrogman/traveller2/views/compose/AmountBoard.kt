@@ -30,6 +30,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mrfrogman.traveller2.R
+import java.text.NumberFormat
+import java.util.Locale
 
 @Composable
 fun AmountBoard(
@@ -104,9 +106,11 @@ fun AmountBoard(
                         fontSize = 20.sp,
                         fontWeight = FontWeight.SemiBold
                     )
+                    val numberFormat = NumberFormat.getNumberInstance(Locale.getDefault())
+                    val formattedAmount = numberFormat.format(amount.toInt())
                     Text(
                         modifier = Modifier.fillMaxWidth(),
-                        text = amount+"円",
+                        text = formattedAmount+"円",
                         textAlign = TextAlign.Center,
                         fontSize = 26.sp,
                         fontWeight = FontWeight.Bold

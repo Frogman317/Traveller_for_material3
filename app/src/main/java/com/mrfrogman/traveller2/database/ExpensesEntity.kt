@@ -5,6 +5,7 @@ import androidx.room.Entity
 import androidx.room.Insert
 import androidx.room.PrimaryKey
 import androidx.room.Query
+import androidx.room.Update
 import java.time.LocalDateTime
 
 @Entity
@@ -30,9 +31,14 @@ interface ExpensesDAO {
     fun getAll(): List<ExpensesEntity>
 
     @Query("SELECT * FROM ExpensesEntity WHERE planId = :planId")
-    fun search(planId: String): List<ExpensesEntity>
+    fun listSearch(planId: String): List<ExpensesEntity>
+
+    @Query("SELECT * FROM ExpensesEntity WHERE id = :expensesId")
+    fun search(expensesId: String): List<ExpensesEntity>
 
     @Query("SELECT SUM(amount) FROM ExpensesEntity WHERE planId = :planId")
     fun getAmount(planId: String): Long
 
+    @Update(entity = ExpensesEntity::class)
+    fun update(member: ExpensesEntity): Int
 }

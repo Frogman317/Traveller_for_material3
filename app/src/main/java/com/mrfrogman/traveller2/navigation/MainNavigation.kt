@@ -3,11 +3,14 @@ package com.mrfrogman.traveller2.navigation
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.mrfrogman.traveller2.views.AddPayView
 import com.mrfrogman.traveller2.views.HomeView
+import com.mrfrogman.traveller2.views.SettlementView
 import com.mrfrogman.traveller2.views.StarterView
 import com.mrfrogman.traveller2.views.TitleView
 import com.mrfrogman.traveller2.views.account.LoginView
@@ -56,10 +59,19 @@ fun MainNavigation(
                 planId = it
             }
         }
-        composable(route = "pay") {
+        composable(route = "settlement") {
+            SettlementView(
+                navController = navController
+            )
+        }
+        composable(
+            route = "pay/{expensesId}",
+            arguments = listOf(navArgument("expensesId") { type = NavType.StringType } )
+        ) {
             AddPayView(
                 navController = navController,
-                planId = planId
+                planId = planId,
+                expensesId = (it.arguments?.getString("expensesId") ?: "0").toInt()
             )
         }
 

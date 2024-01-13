@@ -22,6 +22,7 @@ import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -60,13 +61,17 @@ import java.time.LocalDateTime
 @Composable
 fun AddPayView(
     navController: NavHostController,
-    planId: String
+    planId: String,
+    expensesId: Int = 0
 ) {
     val scrollState = rememberScrollState()
-    var allAmount by remember { mutableStateOf("") }
     var title by remember { mutableStateOf("") }
-    var dropdownText by remember { mutableStateOf("") }
+    var titleErrMsg by remember { mutableStateOf("") }
+    var allAmount by remember { mutableStateOf("") }
+    var amountErrMsg by remember { mutableStateOf("") }
     var payer by remember { mutableIntStateOf(-1) }
+    var payerErrMsg by remember { mutableStateOf("") }
+    var dropdownText by remember { mutableStateOf("") }
     val focusManager = LocalFocusManager.current
     val requiredFocus = remember { FocusRequester() }
 
@@ -79,6 +84,7 @@ fun AddPayView(
     val expensesDao = remember(db) { db.expensesDAO() }
     val memberDao = remember(db) { db.memberDAO() }
     DisposableEffect(Unit) { onDispose { db.close() } }
+
 
     var memberList by remember { mutableStateOf(emptyList<MemberEntity>()) }
     val amountList = remember { mutableStateListOf<String>() }
@@ -94,14 +100,37 @@ fun AddPayView(
     val amountSum = amountList.mapNotNull { it.toIntOrNull() }.sum()
     val placeholderList = IntArray(memberList.size)
     val receipt = mutableMapOf<String,String>()
+    var expensesData by remember { mutableStateOf(emptyList<ExpensesEntity>()) }
 
     LaunchedEffect(true){
-        memberList = withContext(Dispatchers.IO) {
-            memberDao.getAll(planId)
-        }
-        repeat(memberList.size) {
-            amountList.add("")
-            isPaidList.add(false)
+        withContext(Dispatchers.IO) {
+            val updatedMemberList = memberDao.getAll(planId)
+            val updatedExpensesData = expensesDao.search(expensesId.toString())
+            withContext(Dispatchers.Main){
+                memberList = updatedMemberList
+                expensesData = updatedExpensesData
+                repeat(memberList.size) {
+                    amountList.add("")
+                    isPaidList.add(false)
+                }
+                if (expensesData.isNotEmpty() && expensesId > 0) {
+                    repeat(memberList.size) {
+                        val receiptData = expensesData[0].receipt[memberList[it].id.toString()] ?: "0"
+                        if (receiptData != "0"){
+                            amountList[it] = receiptData
+                        }
+                    }
+                    title = expensesData[0].title
+                    payer = expensesData[0].payer
+                    for (index in memberList.indices){
+                        if (memberList[index].id == payer){
+                            paidMember = index
+                            dropdownText = memberList[index].name
+                        }
+                    }
+                    allAmount = expensesData[0].amount.toString()
+                }
+            }
         }
     }
 
@@ -128,15 +157,15 @@ fun AddPayView(
                             var isCanAdd = true
                             if (title == "") {
                                 isCanAdd = false
-                                //TODO タイトルの記入
+                                titleErrMsg = "タイトルを入力してください"
                             }
                             if (allAmount == ""){
                                 isCanAdd = false
-                                //TODO 金額の記入
+                                amountErrMsg = "金額を入力してください"
                             }
                             if (dropdownText == ""){
                                 isCanAdd = false
-                                //TODO 支払者の選択
+                                payerErrMsg = "支払者を選択してください"
                             }
                             var sum = 0
                             for (value in receipt.values){
@@ -152,27 +181,45 @@ fun AddPayView(
                                 //TODO 各金額の不整合
                             }
                             if (isCanAdd) {
+                                val localTime = LocalDateTime.now()
                                 composableScope.launch {
                                     withContext(Dispatchers.IO) {
-                                        val localTime = LocalDateTime.now()
-                                        expensesDao.insert(ExpensesEntity(
-                                            id = 0,
-                                            title = title,
-                                            detail = "",
-                                            planId = planId.toInt(),
-                                            amount = allAmountInt,
-                                            payer = payer,
-                                            receipt = receipt,
-                                            create = localTime,
-                                            timestamp = localTime
-                                        ))
+                                        if (expensesId > 0){
+                                            expensesDao.update(ExpensesEntity(
+                                                id = expensesId,
+                                                title = title,
+                                                detail = "",
+                                                planId = planId.toInt(),
+                                                amount = if (allAmount != "") allAmount.toInt() else 0,
+                                                payer = payer,
+                                                receipt = receipt,
+                                                create = expensesData[0].create,
+                                                timestamp = localTime
+                                            ))
+                                        }else{
+                                            expensesDao.insert(ExpensesEntity(
+                                                id = 0,
+                                                title = title,
+                                                detail = "",
+                                                planId = planId.toInt(),
+                                                amount = if (allAmount != "") allAmount.toInt() else 0,
+                                                payer = payer,
+                                                receipt = receipt,
+                                                create = localTime,
+                                                timestamp = localTime
+                                            ))
+                                        }
                                     }
                                 }
                                 navController.navigateUp()
                             }
                         }
                     ){
-                        Text(text = "作成")
+                        var text = "作成"
+                        if (expensesId > 0){
+                            text = "更新"
+                        }
+                        Text(text = text)
                     }
                 }
             )
@@ -188,6 +235,7 @@ fun AddPayView(
                 contentDescription = "Input ",
                 label = "タイトル",
                 value = title,
+                supportingText = titleErrMsg,
                 keyboardActions = KeyboardActions(
                     onDone = {
                         requiredFocus.requestFocus()
@@ -195,6 +243,7 @@ fun AddPayView(
                 ),
                 onValueChange = {
                     title = it
+                    titleErrMsg = ""
                 },
             )
             TicketTextField(
@@ -202,6 +251,7 @@ fun AddPayView(
                 contentDescription = "Input ",
                 label = "合計金額",
                 value = allAmount,
+                supportingText = amountErrMsg,
                 keyboardType = KeyboardType.Number,
                 keyboardActions = KeyboardActions(
                     onDone = {
@@ -212,11 +262,9 @@ fun AddPayView(
                     if (it.isDigitsOnly() and (it.length < 9)) {
                         allAmount = it
                     }
+                    amountErrMsg = ""
                 },
             )
-
-
-
 
             ExposedDropdownMenuBox(
                 expanded = isExpanded,
@@ -224,13 +272,17 @@ fun AddPayView(
                     isExpanded = it
                 }
             ) {
-                if (paidMember > -1){
-                    dropdownText = memberList[paidMember].name
-                }
                 TextField(
                     label = { Text(text = "支払い者")},
                     value = dropdownText,
                     onValueChange = {},
+                    isError = payerErrMsg != "",
+                    supportingText = {
+                        Text(
+                            text = payerErrMsg,
+                            color = colorScheme.error
+                        )
+                     },
                     readOnly = true,
                     trailingIcon = {
                         ExposedDropdownMenuDefaults.TrailingIcon(expanded = isExpanded)
@@ -243,7 +295,6 @@ fun AddPayView(
                         .menuAnchor()
                         .fillMaxWidth(0.8f)
                 )
-                
 
                 ExposedDropdownMenu(
                     expanded = isExpanded,
@@ -259,7 +310,9 @@ fun AddPayView(
                             onClick = {
                                 isPaidList[index] = true
                                 paidMember = index
+                                dropdownText = memberList[index].name
                                 payer = memberList[index].id
+                                payerErrMsg = ""
                                 isExpanded = false
                             }
                         )

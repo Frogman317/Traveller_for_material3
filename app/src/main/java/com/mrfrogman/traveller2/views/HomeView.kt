@@ -1,5 +1,6 @@
 package com.mrfrogman.traveller2.views
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -63,8 +64,10 @@ import com.mrfrogman.traveller2.views.compose.AmountBoard
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.text.NumberFormat
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -85,8 +88,7 @@ fun HomeView(
     val planDao = remember(db) { db.planDAO() }
     val expensesDao = remember(db) { db.expensesDAO() }
     DisposableEffect(Unit) { onDispose { db.close() } }
-
-    val dateTime = LocalDateTime.now()
+    val dateTime = LocalDateTime.MIN
     var planData by remember { mutableStateOf(PlanEntity(
         id = 0,
         title = "",
@@ -99,7 +101,7 @@ fun HomeView(
     LaunchedEffect(true) {
         withContext(Dispatchers.IO) {
             amount = expensesDao.getAmount(planId).toString()
-            expensesList = expensesDao.search(planId)
+            expensesList = expensesDao.listSearch(planId)
         }
     }
     var planList by remember { mutableStateOf(emptyList<PlanEntity>()) }
@@ -177,7 +179,7 @@ fun HomeView(
                         y = fabOffset.dp
                     ),
                     onClick = {
-                        navController.navigate("pay")
+                        navController.navigate("pay/0")
                     },
                     icon = { Icon(Icons.Filled.Add, "Localized Description") },
                     text = { Text(text = "支払いの追加") },
@@ -236,15 +238,13 @@ fun HomeView(
                         }
                     }
                 }
-                expensesList.forEach {
-                    val date = it.create
-                    val format = DateTimeFormatter.ofPattern("MM/dd")
-                    val dateF = date.format(format)
+                expensesList.reversed().forEach { data ->
                     ListContent(
-                        title = it.title,
-                        data = it.amount.toString(),
-                        date = dateF
-                    )
+                        data = data,
+                    ){ id ->
+                        Log.d("expensesId", "HomeView: $id")
+                        navController.navigate("pay/$id")
+                    }
                 }
                 Spacer(modifier = Modifier.height(80.dp))
             }
@@ -255,15 +255,16 @@ fun HomeView(
 @Stable
 @Composable
 fun ListContent(
-    title: String,
-    data: String,
-    date: String
+    data: ExpensesEntity,
+    onClick: (String) -> Unit
 ) {
     val themeGray = if (isSystemInDarkTheme()) Color.LightGray else Color.Gray
+    val date = data.create
+    val format = DateTimeFormatter.ofPattern("MM/dd")
     Text(
         modifier = Modifier.padding(start = 16.dp),
         color = themeGray,
-        text = date
+        text = date.format(format)
     )
     Row(
         verticalAlignment = Alignment.CenterVertically,
@@ -271,17 +272,19 @@ fun ListContent(
             .fillMaxWidth()
             .height(60.dp)
             .clickable {
-                //TODO
+                onClick(data.id.toString())
             }
     ) {
         Text(
             modifier = Modifier.padding(start = 16.dp),
-            text = title,
+            text = data.title,
             fontWeight = FontWeight.SemiBold,
         )
         Spacer(modifier = Modifier.weight(1f))
+        val numberFormat = NumberFormat.getNumberInstance(Locale.getDefault())
+        val formattedAmount = numberFormat.format(data.amount)
         Text(
-            text = data+"円",
+            text = formattedAmount+"円",
             fontWeight = FontWeight.Medium,
         )
         Icon(

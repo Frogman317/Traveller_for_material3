@@ -76,6 +76,7 @@ fun TicketTextField(
             },
             value = value,
             onValueChange = onValueChange,
+            isError = supportingText != "",
             maxLines = 1,
             supportingText = { Text(
                 modifier = Modifier.padding(top = 8.dp),
