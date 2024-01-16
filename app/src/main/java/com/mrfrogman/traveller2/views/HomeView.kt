@@ -19,6 +19,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.outlined.PostAdd
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.Button
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -57,6 +58,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.room.Room
+import com.mrfrogman.traveller2.database.ApplicationDataStore
 import com.mrfrogman.traveller2.database.ApplicationDatabase
 import com.mrfrogman.traveller2.database.ExpensesEntity
 import com.mrfrogman.traveller2.database.PlanEntity
@@ -121,6 +123,7 @@ fun HomeView(
         drawerState = drawerState,
         drawerContent = {
             val drawerItemModifier = Modifier.padding(4.dp)
+            val composableScope = rememberCoroutineScope()
             ModalDrawerSheet {
                 Text("Drawer title", modifier = Modifier.padding(16.dp))
                 HorizontalDivider()
@@ -133,10 +136,22 @@ fun HomeView(
                         onClick = {
                             drawerSelected = it.id.toString()
                             setPlanId(it.id.toString())
+                            composableScope.launch {
+                                withContext(Dispatchers.IO) {
+                                    ApplicationDataStore(context, "planId").saveData(it.id.toString())
+                                }
+                            }
                         }
                         )
                     }
                 }
+                NavigationDrawerItem(
+                    modifier = drawerItemModifier,
+                    icon = { Icon(imageVector = Icons.Outlined.PostAdd, contentDescription = "add plan icon") },
+                    label = { Text(text = "新規作成") },
+                    selected = false,
+                    onClick = { navController.navigate("starter") }
+                )
                 HorizontalDivider()
                 NavigationDrawerItem(
                     modifier = drawerItemModifier,
