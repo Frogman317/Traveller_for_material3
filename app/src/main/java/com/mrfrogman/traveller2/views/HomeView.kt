@@ -100,24 +100,27 @@ fun HomeView(
     )) }
     var amount by remember  { mutableStateOf("0")}
     var expensesList by remember { mutableStateOf(emptyList<ExpensesEntity>()) }
-    LaunchedEffect(true) {
-        withContext(Dispatchers.IO) {
-            amount = expensesDao.getAmount(planId).toString()
-            expensesList = expensesDao.listSearch(planId)
-        }
-    }
     var planList by remember { mutableStateOf(emptyList<PlanEntity>()) }
-    LaunchedEffect(true) {
-        planList = withContext(Dispatchers.IO) {
-            planDao.getAll()
-        }
-        planList.forEach {
-            if (it.id.toString() == planId){
-                planData = it
+    var selectedPlanId by remember  { mutableStateOf(planId)}
+    LaunchedEffect(key1 = selectedPlanId) {
+        Log.d("TAG", "HomeView: Launched")
+        withContext(Dispatchers.IO) {
+            val amountResult = expensesDao.getAmount(selectedPlanId).toString()
+            val expensesListResult = expensesDao.listSearch(selectedPlanId)
+            val planListResult = planDao.getAll()
+            planList.forEach {
+                if (it.id.toString() == selectedPlanId){
+                    planData = it
+                }
+            }
+            withContext(Dispatchers.Main){
+                amount = amountResult
+                expensesList = expensesListResult
+                planList = planListResult
             }
         }
     }
-    var drawerSelected by remember { mutableStateOf(planId) }
+    var drawerSelected by remember { mutableStateOf(selectedPlanId) }
 
     ModalNavigationDrawer(
         drawerState = drawerState,
@@ -134,9 +137,11 @@ fun HomeView(
                         label = { Text(text = it.title) },
                         selected = it.id.toString() == drawerSelected,
                         onClick = {
+                            Log.d("TAG", "HomeView: "+it.id.toString())
                             drawerSelected = it.id.toString()
                             setPlanId(it.id.toString())
                             composableScope.launch {
+                                selectedPlanId = it.id.toString()
                                 withContext(Dispatchers.IO) {
                                     ApplicationDataStore(context, "planId").saveData(it.id.toString())
                                 }
@@ -210,7 +215,9 @@ fun HomeView(
                 AmountBoard(
                     amount = amount,
                     themeGray = themeGray
-                )
+                ){
+                    navController.navigate("settlement")
+                }
                 Row(
                     modifier = Modifier
                         .padding(top = 20.dp)

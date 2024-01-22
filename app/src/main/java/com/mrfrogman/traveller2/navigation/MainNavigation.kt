@@ -61,7 +61,8 @@ fun MainNavigation(
         }
         composable(route = "settlement") {
             SettlementView(
-                navController = navController
+                navController = navController,
+                planId = planId
             )
         }
         composable(

@@ -104,7 +104,7 @@ fun AddPayView(
 
     LaunchedEffect(true){
         withContext(Dispatchers.IO) {
-            val updatedMemberList = memberDao.getAll(planId)
+            val updatedMemberList = memberDao.search(planId)
             val updatedExpensesData = expensesDao.search(expensesId.toString())
             withContext(Dispatchers.Main){
                 memberList = updatedMemberList

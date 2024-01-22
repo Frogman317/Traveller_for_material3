@@ -24,10 +24,10 @@ interface MemberDAO {
     fun insert(member: MemberEntity)
 
     @Query("SELECT * FROM MemberEntity")
-    fun getAll(): List<MemberEntity>
+    fun search(): List<MemberEntity>
 
 
     @Query("SELECT * FROM MemberEntity WHERE planId = :planId")
-    fun getAll(planId: String): List<MemberEntity>
+    fun search(planId: String): List<MemberEntity>
 
 }

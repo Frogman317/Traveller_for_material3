@@ -36,7 +36,8 @@ import java.util.Locale
 @Composable
 fun AmountBoard(
     amount: String = "0",
-    themeGray: Color
+    themeGray: Color,
+    onClick: () -> Unit
 ) {
     Box(
         modifier = Modifier.fillMaxWidth(),
@@ -72,7 +73,7 @@ fun AmountBoard(
                         interactionSource = remember { MutableInteractionSource() },
                         indication = null
                     ) {
-                        Log.d("TAG", "HomeView: ")
+                        onClick()
                     },
                 contentScale = ContentScale.FillBounds,
                 painter = painterResource(id = R.drawable.ticketamountboard2),
