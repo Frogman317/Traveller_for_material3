@@ -90,20 +90,12 @@ fun HomeView(
     val planDao = remember(db) { db.planDAO() }
     val expensesDao = remember(db) { db.expensesDAO() }
     DisposableEffect(Unit) { onDispose { db.close() } }
-    val dateTime = LocalDateTime.MIN
-    var planData by remember { mutableStateOf(PlanEntity(
-        id = 0,
-        title = "",
-        detail = "",
-        create = dateTime,
-        timestamp = dateTime
-    )) }
+    var planData: PlanEntity? by remember { mutableStateOf(null) }
     var amount by remember  { mutableStateOf("0")}
     var expensesList by remember { mutableStateOf(emptyList<ExpensesEntity>()) }
     var planList by remember { mutableStateOf(emptyList<PlanEntity>()) }
     var selectedPlanId by remember  { mutableStateOf(planId)}
     LaunchedEffect(key1 = selectedPlanId) {
-        Log.d("TAG", "HomeView: Launched")
         withContext(Dispatchers.IO) {
             val amountResult = expensesDao.getAmount(selectedPlanId).toString()
             val expensesListResult = expensesDao.listSearch(selectedPlanId)
@@ -171,7 +163,7 @@ fun HomeView(
         Scaffold(
             topBar = {
                 CenterAlignedTopAppBar(
-                    title = { Text(text = planData.title) },//TODO 仮タイトル
+                    title = { Text(text = planData?.title ?: "") },//TODO 仮タイトル
                     navigationIcon = {
                         IconButton(onClick = {
                             scope.launch {

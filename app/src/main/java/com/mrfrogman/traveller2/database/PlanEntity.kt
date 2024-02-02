@@ -26,6 +26,6 @@ interface PlanDAO {
     fun getAll(): List<PlanEntity>
 
     @Query("SELECT * FROM PlanEntity WHERE id = :planId")
-    fun search(planId: String): List<PlanEntity>
+    fun search(planId: String): PlanEntity
 
 }

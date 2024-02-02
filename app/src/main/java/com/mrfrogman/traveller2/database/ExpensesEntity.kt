@@ -34,7 +34,7 @@ interface ExpensesDAO {
     fun listSearch(planId: String): List<ExpensesEntity>
 
     @Query("SELECT * FROM ExpensesEntity WHERE id = :expensesId")
-    fun search(expensesId: String): List<ExpensesEntity>
+    fun search(expensesId: String): ExpensesEntity
 
     @Query("SELECT SUM(amount) FROM ExpensesEntity WHERE planId = :planId")
     fun getAmount(planId: String): Long

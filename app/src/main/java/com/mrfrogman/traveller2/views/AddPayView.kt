@@ -22,6 +22,7 @@ import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -36,14 +37,17 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.core.text.isDigitsOnly
 import androidx.navigation.NavHostController
@@ -66,11 +70,13 @@ fun AddPayView(
 ) {
     val scrollState = rememberScrollState()
     var title by remember { mutableStateOf("") }
+
     var titleErrMsg by remember { mutableStateOf("") }
-    var allAmount by remember { mutableStateOf("") }
     var amountErrMsg by remember { mutableStateOf("") }
-    var payer by remember { mutableIntStateOf(-1) }
     var payerErrMsg by remember { mutableStateOf("") }
+
+    var allAmount by remember { mutableStateOf("") }
+    var payer by remember { mutableIntStateOf(-1) }
     var dropdownText by remember { mutableStateOf("") }
     val focusManager = LocalFocusManager.current
     val requiredFocus = remember { FocusRequester() }
@@ -88,8 +94,10 @@ fun AddPayView(
 
     var memberList by remember { mutableStateOf(emptyList<MemberEntity>()) }
     val amountList = remember { mutableStateListOf<String>() }
+    val labelList = remember { mutableStateListOf<String>() }
     val isPaidList = remember { mutableStateListOf<Boolean>()}
 
+    val test = { mutableListOf(listOf(3).toMutableList()) }
     //金額の計算用の変数を宣言
     var allAmountInt = if (allAmount != "") allAmount.toInt() else 0
     var dutch = 0
@@ -100,7 +108,7 @@ fun AddPayView(
     val amountSum = amountList.mapNotNull { it.toIntOrNull() }.sum()
     val placeholderList = IntArray(memberList.size)
     val receipt = mutableMapOf<String,String>()
-    var expensesData by remember { mutableStateOf(emptyList<ExpensesEntity>()) }
+    var expensesData: ExpensesEntity? by remember { mutableStateOf(null) }
 
     LaunchedEffect(true){
         withContext(Dispatchers.IO) {
@@ -110,30 +118,29 @@ fun AddPayView(
                 memberList = updatedMemberList
                 expensesData = updatedExpensesData
                 repeat(memberList.size) {
+                    labelList.add("")
                     amountList.add("")
                     isPaidList.add(false)
                 }
-                if (expensesData.isNotEmpty() && expensesId > 0) {
+                expensesData?.run {
                     repeat(memberList.size) {
-                        val receiptData = expensesData[0].receipt[memberList[it].id.toString()] ?: "0"
-                        if (receiptData != "0"){
-                            amountList[it] = receiptData
+                        val receiptData = this.receipt[memberList[it].id.toString()] ?: "0"
+                        amountList[it] = receiptData
+                        if (receiptData != "0") {
+                            isPaidList[it] = true
+                        }
+                        if (memberList[it].id == payer){
+                            paidMember = it
+                            dropdownText = memberList[it].name
                         }
                     }
-                    title = expensesData[0].title
-                    payer = expensesData[0].payer
-                    for (index in memberList.indices){
-                        if (memberList[index].id == payer){
-                            paidMember = index
-                            dropdownText = memberList[index].name
-                        }
-                    }
-                    allAmount = expensesData[0].amount.toString()
+                    title = this.title
+                    payer = this.payer
+                    allAmount = this.amount.toString()
                 }
             }
         }
     }
-
     val composableScope = rememberCoroutineScope()
     Scaffold(
         topBar = {
@@ -193,7 +200,7 @@ fun AddPayView(
                                                 amount = if (allAmount != "") allAmount.toInt() else 0,
                                                 payer = payer,
                                                 receipt = receipt,
-                                                create = expensesData[0].create,
+                                                create = expensesData?.create ?: localTime,
                                                 timestamp = localTime
                                             ))
                                         }else{
@@ -247,10 +254,14 @@ fun AddPayView(
                 },
             )
             TicketTextField(
-                textModifier = Modifier.focusRequester(requiredFocus),
+                textModifier = Modifier
+                    .padding(bottom = 8.dp)
+                    .focusRequester(requiredFocus),
                 contentDescription = "Input ",
                 label = "合計金額",
                 value = allAmount,
+                textStyle = LocalTextStyle.current.copy(textAlign = TextAlign.Right),
+                suffix = "円",
                 supportingText = amountErrMsg,
                 keyboardType = KeyboardType.Number,
                 keyboardActions = KeyboardActions(
@@ -261,8 +272,8 @@ fun AddPayView(
                 onValueChange = {
                     if (it.isDigitsOnly() and (it.length < 9)) {
                         allAmount = it
+                        amountErrMsg = ""
                     }
-                    amountErrMsg = ""
                 },
             )
 
@@ -340,37 +351,37 @@ fun AddPayView(
 
             HorizontalDivider()
 
-            allAmountInt -= amountSum
-            if (unspecified > 0) {
-                remainder = allAmountInt % unspecified
-                dutch = (allAmountInt - remainder) / unspecified
-            }else{
-                remainder = allAmountInt
-            }
-            for (index in amountList.indices) {
-                if (isPaidList[index]){
-                    if (amountList[index] == ""){
-                        placeholderList[index] = dutch
-                    }
-                }
-                if (paidMember == index){
-                    placeholderList[index] = placeholderList[index] + remainder
-                }
-            }
-            for (index in memberList.indices) {
-                val memberId = memberList[index].id.toString()
-                receipt[memberId] = "0"
-                if (isPaidList[index]){
-                    if (amountList[index] == ""){
-                        receipt[memberId] = placeholderList[index].toString()
-                    }else{
-                        receipt[memberId] = amountList[index]
-                    }
-                }
-            }
-            Log.d("memberList", receipt.toString())
+//            allAmountInt -= amountSum
+//            if (unspecified > 0) {
+//                remainder = allAmountInt % unspecified
+//                dutch = (allAmountInt - remainder) / unspecified
+//            }else{
+//                remainder = allAmountInt
+//            }
+//            for (index in amountList.indices) {
+//                if (isPaidList[index]){
+//                    if (amountList[index] == ""){
+//                        placeholderList[index] = dutch
+//                    }
+//                }
+//                if (paidMember == index){
+//                    placeholderList[index] = placeholderList[index] + remainder
+//                }
+//            }
+//            for (index in memberList.indices) {
+//                val memberId = memberList[index].id.toString()
+//                receipt[memberId] = "0"
+//                if (isPaidList[index]){
+//                    if (amountList[index] == ""){
+//                        receipt[memberId] = placeholderList[index].toString()
+//                    }else{
+//                        receipt[memberId] = amountList[index]
+//                    }
+//                }
+//            }
+//            Log.d("memberList", receipt.toString())
 
-            for (index in memberList.indices){
+            repeat(memberList.size) { index ->
                 Row(
                     modifier = Modifier
                         .padding(horizontal = 16.dp, vertical = 8.dp),
@@ -396,9 +407,19 @@ fun AddPayView(
                         modifier = Modifier
                             .width(120.dp),
                         placeholder = {
-                            Text(text = placeholderList[index].toString())
+                            var text = placeholderList[index].toString()
+                            LaunchedEffect(true){
+                                text = labelList[index]
+                            }
+                            Text(
+                                modifier = Modifier.fillMaxWidth(),
+                                text = text,
+                                textAlign =  TextAlign.Right
+                            )
                         },
+                        textStyle = LocalTextStyle.current.copy(textAlign = TextAlign.Right),
                         value = amountList[index],
+                        suffix = { Text(text = "円")},
                         maxLines = 1,
                         onValueChange = {
                             if (it.isDigitsOnly()){
