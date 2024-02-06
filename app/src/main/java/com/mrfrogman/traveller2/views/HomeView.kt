@@ -1,6 +1,5 @@
 package com.mrfrogman.traveller2.views
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -79,11 +78,11 @@ fun HomeView(
     setPlanId: (String) -> Unit
 ) {
     val scrollState = rememberScrollState()
-    var segmentIndex by remember { mutableIntStateOf(0) }
-    val themeGray = if (isSystemInDarkTheme()) Color.LightGray else Color.Gray
-    var fabOffset by remember { mutableStateOf(0) }
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
-    val scope = rememberCoroutineScope()
+    val themeGray = if (isSystemInDarkTheme()) Color.LightGray else Color.Gray
+    var title by remember { mutableStateOf("") }
+    var segmentIndex by remember { mutableIntStateOf(0) }
+    var fabOffset by remember { mutableStateOf(0) }
 
     val context = LocalContext.current
     val db = remember { Room.databaseBuilder(context, ApplicationDatabase::class.java, "my-database").build() }
@@ -100,15 +99,16 @@ fun HomeView(
             val amountResult = expensesDao.getAmount(selectedPlanId).toString()
             val expensesListResult = expensesDao.listSearch(selectedPlanId)
             val planListResult = planDao.getAll()
-            planList.forEach {
-                if (it.id.toString() == selectedPlanId){
-                    planData = it
-                }
-            }
             withContext(Dispatchers.Main){
                 amount = amountResult
                 expensesList = expensesListResult
                 planList = planListResult
+                planList.forEach {
+                    if (it.id.toString() == selectedPlanId){
+                        planData = it
+                        title = planData?.title ?: ""
+                    }
+                }
             }
         }
     }
@@ -129,7 +129,6 @@ fun HomeView(
                         label = { Text(text = it.title) },
                         selected = it.id.toString() == drawerSelected,
                         onClick = {
-                            Log.d("TAG", "HomeView: "+it.id.toString())
                             drawerSelected = it.id.toString()
                             setPlanId(it.id.toString())
                             composableScope.launch {
@@ -160,10 +159,11 @@ fun HomeView(
             }
         }
     ) {
+        val scope = rememberCoroutineScope()
         Scaffold(
             topBar = {
                 CenterAlignedTopAppBar(
-                    title = { Text(text = planData?.title ?: "") },//TODO 仮タイトル
+                    title = { Text(text = title) },//TODO 仮タイトル
                     navigationIcon = {
                         IconButton(onClick = {
                             scope.launch {
@@ -256,7 +256,6 @@ fun HomeView(
                     ListContent(
                         data = data,
                     ){ id ->
-                        Log.d("expensesId", "HomeView: $id")
                         navController.navigate("pay/$id")
                     }
                 }

@@ -96,19 +96,17 @@ fun AddPayView(
     val amountList = remember { mutableStateListOf<String>() }
     val labelList = remember { mutableStateListOf<String>() }
     val isPaidList = remember { mutableStateListOf<Boolean>()}
+    var expensesData: ExpensesEntity? by remember { mutableStateOf(null) }
 
     val test = { mutableListOf(listOf(3).toMutableList()) }
     //金額の計算用の変数を宣言
-    var allAmountInt = if (allAmount != "") allAmount.toInt() else 0
+    val amountSum = amountList.mapNotNull { it.toIntOrNull() }.sum()
+    var allAmountInt = if (allAmount != "") allAmount.toInt() else 0 - amountSum
     var dutch = 0
     var remainder: Int
-    val isPaidCount = isPaidList.count { it }
-    val amountCount = amountList.count { it != "" }
-    val unspecified = isPaidCount - amountCount
-    val amountSum = amountList.mapNotNull { it.toIntOrNull() }.sum()
+    val unspecified = isPaidList.count { it } - amountList.count { it != "" }
     val placeholderList = IntArray(memberList.size)
     val receipt = mutableMapOf<String,String>()
-    var expensesData: ExpensesEntity? by remember { mutableStateOf(null) }
 
     LaunchedEffect(true){
         withContext(Dispatchers.IO) {
@@ -123,6 +121,9 @@ fun AddPayView(
                     isPaidList.add(false)
                 }
                 expensesData?.run {
+                    title = this.title
+                    payer = this.payer
+                    allAmount = this.amount.toString()
                     repeat(memberList.size) {
                         val receiptData = this.receipt[memberList[it].id.toString()] ?: "0"
                         amountList[it] = receiptData
@@ -134,9 +135,6 @@ fun AddPayView(
                             dropdownText = memberList[it].name
                         }
                     }
-                    title = this.title
-                    payer = this.payer
-                    allAmount = this.amount.toString()
                 }
             }
         }
@@ -351,35 +349,35 @@ fun AddPayView(
 
             HorizontalDivider()
 
-//            allAmountInt -= amountSum
-//            if (unspecified > 0) {
-//                remainder = allAmountInt % unspecified
-//                dutch = (allAmountInt - remainder) / unspecified
-//            }else{
-//                remainder = allAmountInt
-//            }
-//            for (index in amountList.indices) {
-//                if (isPaidList[index]){
-//                    if (amountList[index] == ""){
-//                        placeholderList[index] = dutch
-//                    }
-//                }
-//                if (paidMember == index){
-//                    placeholderList[index] = placeholderList[index] + remainder
-//                }
-//            }
-//            for (index in memberList.indices) {
-//                val memberId = memberList[index].id.toString()
-//                receipt[memberId] = "0"
-//                if (isPaidList[index]){
-//                    if (amountList[index] == ""){
-//                        receipt[memberId] = placeholderList[index].toString()
-//                    }else{
-//                        receipt[memberId] = amountList[index]
-//                    }
-//                }
-//            }
-//            Log.d("memberList", receipt.toString())
+            allAmountInt -= amountSum
+            if (unspecified > 0) {
+                remainder = allAmountInt % unspecified
+                dutch = (allAmountInt - remainder) / unspecified
+            }else{
+                remainder = allAmountInt
+            }
+            for (index in amountList.indices) {
+                if (isPaidList[index]){
+                    if (amountList[index] == ""){
+                        placeholderList[index] = dutch
+                    }
+                }
+                if (paidMember == index){
+                    placeholderList[index] = placeholderList[index] + remainder
+                }
+            }
+            for (index in memberList.indices) {
+                val memberId = memberList[index].id.toString()
+                receipt[memberId] = "0"
+                if (isPaidList[index]){
+                    if (amountList[index] == ""){
+                        receipt[memberId] = placeholderList[index].toString()
+                    }else{
+                        receipt[memberId] = amountList[index]
+                    }
+                }
+            }
+            Log.d("memberList", receipt.toString())
 
             repeat(memberList.size) { index ->
                 Row(
