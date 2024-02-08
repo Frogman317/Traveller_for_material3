@@ -9,6 +9,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.mrfrogman.traveller2.views.AddPayView
+import com.mrfrogman.traveller2.views.DetailView
 import com.mrfrogman.traveller2.views.HomeView
 import com.mrfrogman.traveller2.views.SettlementView
 import com.mrfrogman.traveller2.views.StarterView
@@ -22,13 +23,11 @@ import com.mrfrogman.traveller2.views.plan.JoinPlanView
 fun MainNavigation(
     modifier: Modifier = Modifier,
     navController: NavHostController = rememberNavController(),
-    id: String = "0"
+    id: String? = null
 ) {
-    var planId = id
+    var planId: String? = id
     var startDestination = "starter"
-    if (planId != "null"){
-        startDestination = "home"
-    }
+    planId?.let{startDestination = "home"}
     NavHost(
         modifier = modifier,
         navController = navController,
@@ -54,15 +53,21 @@ fun MainNavigation(
         composable(route = "home") {
             HomeView(
                 navController = navController,
-                planId = planId
+                planId = planId ?: "0"
             ){
                 planId = it
             }
         }
+        composable(route = "detail") {
+            DetailView(
+                navController = navController,
+                planId = planId ?: "0"
+            )
+        }
         composable(route = "settlement") {
             SettlementView(
                 navController = navController,
-                planId = planId
+                planId = planId ?: "0"
             )
         }
         composable(
@@ -71,7 +76,7 @@ fun MainNavigation(
         ) {
             AddPayView(
                 navController = navController,
-                planId = planId,
+                planId = planId ?: "0",
                 expensesId = (it.arguments?.getString("expensesId") ?: "0").toInt()
             )
         }

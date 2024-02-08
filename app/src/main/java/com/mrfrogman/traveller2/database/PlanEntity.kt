@@ -28,4 +28,7 @@ interface PlanDAO {
     @Query("SELECT * FROM PlanEntity WHERE id = :planId")
     fun search(planId: String): PlanEntity
 
+    @Query("DELETE FROM PlanEntity WHERE id = :planId")
+    fun delete(planId: String)
+
 }

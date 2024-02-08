@@ -66,7 +66,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.text.NumberFormat
-import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 
@@ -163,7 +162,7 @@ fun HomeView(
         Scaffold(
             topBar = {
                 CenterAlignedTopAppBar(
-                    title = { Text(text = title) },//TODO 仮タイトル
+                    title = { Text(text = title) },
                     navigationIcon = {
                         IconButton(onClick = {
                             scope.launch {
@@ -219,7 +218,7 @@ fun HomeView(
                     FilledTonalButton(
                         modifier = Modifier.width(150.dp),
                         onClick = {
-
+                            navController.navigate("detail")
                         }) {
                         Text(text = "詳細")
                     }
