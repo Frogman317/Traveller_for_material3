@@ -1,21 +1,19 @@
 package com.mrfrogman.traveller2.views
 
 import androidx.compose.animation.animateContentSize
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material3.Card
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -113,14 +111,11 @@ fun SettlementView(navController: NavHostController, planId: String) {
                 } else {
                     if (pay >= 0) lightBlue else lightRed
                 }
-                Box(
+                Card(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(vertical = 4.dp)
-                        .background(
-                            color = color,
-                            shape = RoundedCornerShape(20.dp)
-                        )
+                        .padding(horizontal = 4.dp)
+                        .padding(bottom = 8.dp)
                         .animateContentSize()
                         .clickable(
                             interactionSource = remember { MutableInteractionSource() },
